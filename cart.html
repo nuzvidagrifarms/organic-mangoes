@@ -725,10 +725,67 @@ try {
 
 showToast(`Order placed! 🥭 Your Ref ID: #${referenceId}`, 15000);
 
-// Clear everything
 sessionStorage.removeItem('cart');
 sessionStorage.removeItem('mangoes');
-setTimeout(() => window.location.href = 'index.html', 2000);
+
+document.body.innerHTML = `
+  <div style="
+    min-height: 100vh;
+    background: var(--cream);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+    font-family: 'DM Sans', sans-serif;
+    text-align: center;
+  ">
+    <div style="font-size: 64px; margin-bottom: 20px;">🥭</div>
+
+    <div style="
+      font-family: 'Playfair Display', serif;
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--maroon);
+      margin-bottom: 8px;
+    ">Order Placed!</div>
+
+    <div style="
+      font-size: 14px;
+      color: var(--maroon-60);
+      margin-bottom: 32px;
+    ">Thank you, ${name}. We'll deliver your mangoes fresh!</div>
+
+    <div style="
+      background: #fff;
+      border: 0.5px solid var(--terra-50);
+      border-radius: 16px;
+      padding: 24px 32px;
+      margin-bottom: 32px;
+    ">
+      <div style="font-size: 12px; color: var(--maroon-60); margin-bottom: 6px; letter-spacing: 1px; text-transform: uppercase;">Your Reference ID</div>
+      <div style="
+        font-family: 'Playfair Display', serif;
+        font-size: 36px;
+        font-weight: 800;
+        color: var(--maroon);
+      ">#${referenceId}</div>
+      <div style="font-size: 12px; color: var(--maroon-60); margin-top: 6px;">Please save this for tracking your order</div>
+    </div>
+
+    <button onclick="window.location.href='index.html'" style="
+      background: var(--maroon);
+      color: var(--cream);
+      border: none;
+      padding: 14px 32px;
+      border-radius: 12px;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 700;
+      font-size: 15px;
+      cursor: pointer;
+    ">← Back to Home</button>
+  </div>
+`;
 }
       
     // =============================

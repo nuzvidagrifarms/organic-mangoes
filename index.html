@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Nuzvid Agri Farms</title>
+  <title>Mango Grove</title>
   <link rel="icon" type="image/png" href="nuzvidagrifarms_logo.png"/>
-  <link rel="stylesheet" href="style.css"/>
+  <link rel="stylesheet" href="style.css?v=2"/>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=DM+Sans:wght@300;400;600&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 </head>
@@ -25,7 +25,7 @@
 
     <!-- Hero -->
     <section class="pg-hero">
-      <div class="pg-hero-badge">Season 2026 — Nuzvid, AP</div>
+      <div class="pg-hero-badge">Season 2025 — Nuzvid, AP</div>
       <h1>Farm Fresh <span>Mangoes</span><br/>Delivered to You</h1>
       <p>Pure &amp; Delight — straight from the orchard</p>
     </section>
@@ -41,9 +41,32 @@
       <!-- Customer Details Form -->
       <div class="pg-form">
         <h2>Your Details</h2>
-        <input class="pg-input" type="text"  id="customerName"    placeholder="Your Name"/>
-        <input class="pg-input" type="tel"   id="customerPhone"   placeholder="Phone Number"/>
-        <textarea class="pg-input"           id="customerAddress" rows="3" placeholder="Delivery Address" style="resize:none;"></textarea>
+
+        <input class="pg-input" type="text" id="customerName"  placeholder="Your Name"/>
+        <input class="pg-input" type="tel"  id="customerPhone" placeholder="Phone Number"/>
+
+        <!-- Delivery Address Sub-section -->
+        <div class="pg-address-label">Delivery Address</div>
+
+        <div class="pg-address-grid">
+          <div class="pg-address-field">
+            <label class="pg-field-label">H.No / Flat No <span class="pg-req">*</span></label>
+            <input class="pg-input" type="text" id="addrHno"       placeholder="e.g. 4B, Flat 12"/>
+          </div>
+          <div class="pg-address-field">
+            <label class="pg-field-label">Apartment Name <span class="pg-req">*</span></label>
+            <input class="pg-input" type="text" id="addrApartment" placeholder="e.g. Green Valley"/>
+          </div>
+          <div class="pg-address-field">
+            <label class="pg-field-label">Locality / Area <span class="pg-req">*</span></label>
+            <input class="pg-input" type="text" id="addrLocality"  placeholder="e.g. Banjara Hills"/>
+          </div>
+          <div class="pg-address-field">
+            <label class="pg-field-label">Pincode <span class="pg-req">*</span></label>
+            <input class="pg-input" type="text" id="addrPincode"   placeholder="e.g. 500034" maxlength="6"/>
+          </div>
+        </div>
+
       </div>
 
     </div>
@@ -61,6 +84,6 @@
   <!-- Toast Notification -->
   <div class="toast" id="toast"></div>
 
-  <script src="app.js"></script>
+  <script src="app.js?v=3"></script>
 </body>
 </html>

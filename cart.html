@@ -377,10 +377,72 @@
         inputmode="numeric"
         style="margin-bottom:10px;height:44px;" />
 
-      <textarea class="ct-textarea"
-        id="customerAddress"
-        rows="3"
-        placeholder="Full Delivery Address"></textarea>
+<!-- Delivery Address -->
+<div style="margin-top:14px;">
+
+  <div class="ct-address-label">
+    Delivery Address
+  </div>
+
+  <div class="ct-address-grid">
+
+    <div class="ct-address-field">
+      <label class="ct-field-label">
+        H.No / Flat No <span class="ct-req">*</span>
+      </label>
+
+      <input
+        class="ct-textarea ct-input"
+        type="text"
+        id="addrHno"
+        placeholder="e.g. Flat 402"
+      />
+    </div>
+
+    <div class="ct-address-field">
+      <label class="ct-field-label">
+        Apartment Name <span class="ct-req">*</span>
+      </label>
+
+      <input
+        class="ct-textarea ct-input"
+        type="text"
+        id="addrApartment"
+        placeholder="e.g. Green Valley"
+      />
+    </div>
+
+    <div class="ct-address-field">
+      <label class="ct-field-label">
+        Locality / Area <span class="ct-req">*</span>
+      </label>
+
+      <input
+        class="ct-textarea ct-input"
+        type="text"
+        id="addrLocality"
+        placeholder="e.g. Banjara Hills"
+      />
+    </div>
+
+    <div class="ct-address-field">
+      <label class="ct-field-label">
+        Pincode <span class="ct-req">*</span>
+      </label>
+
+      <input
+        class="ct-textarea ct-input"
+        type="text"
+        id="addrPincode"
+        maxlength="6"
+        inputmode="numeric"
+        placeholder="e.g. 500034"
+      />
+    </div>
+
+  </div>
+
+</div>
     </div>    
     
     <!-- Section 3: Delivery Instructions -->

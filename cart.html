@@ -684,63 +684,49 @@ const address =
         return;
       }
 
-      // Final stock check
-      const { data: latestStock, error: stockError } =
-        await supabaseClient.from('mango_stock').select('*');
+// Place order via RPC (atomic — handles stock check + deduct + insert)
+const orderItems = items.map(i => ({
+  id:           i.id,
+  name:         i.name,
+  emoji:        i.emoji,
+  quantity:     i.quantity,
+  price_per_kg: i.price_per_kg
+}));
 
-      if (stockError) { showToast("Stock validation failed"); return; }
+const { data: rpcResult, error: rpcError } = await supabaseClient.rpc('place_order', {
+  p_customer_name: name,
+  p_phone:         phone,
+  p_address:       address,
+  p_order_data:    orderItems,
+  p_total_kg:      totalKg,
+  p_total_price:   totalPrice,
+  p_delivery_note: note
+});
 
-      for (const item of items) {
-        const latest = latestStock.find(m => m.id === item.id);
-        if (!latest)                         { showToast(`${item.name} unavailable`); return; }
-        if (item.quantity > latest.stock_kg) { showToast(`${item.name} only has ${latest.stock_kg} KG left`); return; }
-      }
+if (rpcError || rpcResult?.error) {
+  showToast(rpcResult?.error || "Order failed");
+  return;
+}
 
-      const totalKg    = items.reduce((s, i) => s + i.quantity, 0);
-      const totalPrice = items.reduce((s, i) => s + i.quantity * i.price_per_kg, 0);
+// Telegram
+const itemsText = items.map(i => `• ${i.name} × ${i.quantity} KG — ₹${i.quantity * i.price_per_kg}`).join('\n');
+const msg = `🥭 New Mango Order\n\n${itemsText}\n\n💰 Total: ₹${totalPrice}\n\n👤 ${name}\n📞 ${phone}\n📍 ${address}${note ? `\n📝 Note: ${note}` : ''}`;
 
-      // Save order
-      const { error } = await supabaseClient.from('orders').insert({
-        customer_name: name,
-        phone,
-        address,
-        order_data:    items,
-        total_kg:      totalKg,
-        total_price:   totalPrice,
-        delivery_note: note
-      });
+try {
+  await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify({ chat_id: CHAT_ID, text: msg })
+  });
+} catch(e) { console.error(e); }
 
-      if (error) { console.error(error); showToast("Order failed"); return; }
+showToast("Order placed successfully! 🥭");
 
-      // Update stock
-      await Promise.all(
-        items.map(item => {
-          const latest   = latestStock.find(m => m.id === item.id);
-          const newStock = latest.stock_kg - item.quantity;
-          return supabaseClient.from('mango_stock').update({ stock_kg: newStock }).eq('id', item.id);
-        })
-      );
-
-      // Telegram
-      const itemsText = items.map(i => `• ${i.name} × ${i.quantity} KG — ₹${i.quantity * i.price_per_kg}`).join('\n');
-      const msg = `🥭 New Mango Order\n\n${itemsText}\n\n💰 Total: ₹${totalPrice}\n\n👤 ${name}\n📞 ${phone}\n📍 ${address}${note ? `\n📝 Note: ${note}` : ''}`;
-
-      try {
-        await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-          method:  'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify({ chat_id: CHAT_ID, text: msg })
-        });
-      } catch(e) { console.error(e); }
-
-      showToast("Order placed successfully! 🥭");
-
-      // Clear everything
-      sessionStorage.removeItem('cart');
-      sessionStorage.removeItem('mangoes');
-      setTimeout(() => window.location.href = 'index.html', 2000);
-    }
-
+// Clear everything
+sessionStorage.removeItem('cart');
+sessionStorage.removeItem('mangoes');
+setTimeout(() => window.location.href = 'index.html', 2000);
+      
     // =============================
     // TOAST
     // =============================

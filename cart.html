@@ -213,6 +213,53 @@
       resize: none;
     }
 
+    /* ── Address Section ── */
+
+.ct-address-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--maroon-60);
+  border-top: 0.5px solid var(--terra-40);
+  padding-top: 14px;
+  margin-bottom: 14px;
+}
+
+.ct-address-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.ct-address-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.ct-field-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--maroon);
+  letter-spacing: 0.3px;
+}
+
+.ct-req {
+  color: var(--terra);
+}
+
+.ct-input {
+  height: 44px;
+  resize: none;
+}
+
+@media (max-width: 480px) {
+  .ct-address-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
     .ct-textarea::placeholder { color: var(--maroon-60); }
     .ct-textarea:focus { border-color: var(--terra); }
 
@@ -600,14 +647,29 @@
         document.getElementById('customerName').value.trim(); 
       const phone =
         document.getElementById('customerPhone').value.trim();
-      const address =
-        document.getElementById('customerAddress').value.trim();
+      const hno =
+  document.getElementById('addrHno').value.trim();
+
+const apartment =
+  document.getElementById('addrApartment').value.trim();
+
+const locality =
+  document.getElementById('addrLocality').value.trim();
+
+const pincode =
+  document.getElementById('addrPincode').value.trim();
+
+const address =
+  `${hno}, ${apartment}, ${locality}, ${pincode}`;
       const note    = document.getElementById('deliveryNote').value.trim();
       if (
         !name ||
         !phone ||
         !/^\d{10}$/.test(phone) ||
-        !address
+        !hno ||
+!apartment ||
+!locality ||
+!pincode
       ) {
         showToast(
           !phone || !/^\d{10}$/.test(phone)

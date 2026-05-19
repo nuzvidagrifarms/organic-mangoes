@@ -383,14 +383,14 @@
         placeholder="Full Delivery Address"></textarea>
     </div>    
     
-    <!-- Section 2: Delivery Instructions -->
+    <!-- Section 3: Delivery Instructions -->
     <div class="ct-instructions">
       <h3>Delivery Instructions</h3>
       <textarea class="ct-textarea" id="deliveryNote" rows="3"
         placeholder="e.g. Call before delivery, Leave at door, Deliver after 6pm..."></textarea>
     </div>
 
-    <!-- Section 3: Cost Breakdown -->
+    <!-- Section 4: Cost Breakdown -->
     <div class="ct-breakdown">
       <h3>Order Summary</h3>
       <div id="costBreakdown"></div>
@@ -534,10 +534,26 @@
       }
 
       // Read customer details saved in sessionStorage from index.html
-      const name    = sessionStorage.getItem('customerName')    || '';
-      const phone   = sessionStorage.getItem('customerPhone')   || '';
-      const address = sessionStorage.getItem('customerAddress') || '';
+      const name =
+        document.getElementById('customerName').value.trim(); 
+      const phone =
+        document.getElementById('customerPhone').value.trim();
+      const address =
+        document.getElementById('customerAddress').value.trim();
       const note    = document.getElementById('deliveryNote').value.trim();
+      if (
+        !name ||
+        !phone ||
+        !/^\d{10}$/.test(phone) ||
+        !address
+      ) {
+        showToast(
+          !phone || !/^\d{10}$/.test(phone)
+            ? "Enter valid 10-digit phone number"
+            : "Fill all details"
+        );
+        return;
+      }
 
       if (!name || !phone || !address) {
         showToast("Go back and fill your details");
@@ -596,7 +612,8 @@
       showToast("Order placed successfully! 🥭");
 
       // Clear everything
-      sessionStorage.clear();
+      sessionStorage.removeItem('cart');
+      sessionStorage.removeItem('mangoes');
       setTimeout(() => window.location.href = 'index.html', 2000);
     }
 

@@ -21,7 +21,7 @@ const CHAT_ID = "7131196436";
 
 let mangoes = [];
 
-const cart = JSON.parse(sessionStorage.getItem('cart') || '{}');;
+const cart = JSON.parse(sessionStorage.getItem('cart') || '{}');
 
 // =============================
 // LOAD MANGOES

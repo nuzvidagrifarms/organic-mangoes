@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mango Grove</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=DM+Sans:wght@300;400;600&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+</head>
+<body>
+
+  <div class="pg-wrap">
+
+    <!-- Header -->
+    <header class="pg-header">
+      <img
+        src="nuzvidagrifarms_logo.png"
+        alt="Nuzvid Agri Farms"
+        class="pg-logo"
+        onerror="this.style.display='none';this.insertAdjacentHTML('afterend','<span class=\'pg-logo-fallback\'>Nuzvid Agri Farms</span>')"
+      />
+    </header>
+
+    <!-- Hero -->
+    <section class="pg-hero">
+      <div class="pg-hero-badge">Season 2025 — Nuzvid, AP</div>
+      <h1>Farm Fresh <span>Mangoes</span><br/>Delivered to You</h1>
+      <p>Pure &amp; Delight — straight from the orchard</p>
+    </section>
+
+    <!-- Body -->
+    <div class="pg-body">
+
+      <div class="pg-section-title">Choose your mangoes</div>
+
+      <!-- Mango Cards Grid -->
+      <div class="pg-grid" id="mangoGrid"></div>
+
+      <!-- Customer Details Form -->
+      <div class="pg-form">
+        <h2>Your Details</h2>
+        <input class="pg-input" type="text"  id="customerName"    placeholder="Your Name"/>
+        <input class="pg-input" type="tel"   id="customerPhone"   placeholder="Phone Number"/>
+        <textarea class="pg-input"           id="customerAddress" rows="3" placeholder="Delivery Address" style="resize:none;"></textarea>
+      </div>
+
+    </div>
+
+    <!-- Sticky Cart Bar -->
+    <div class="pg-cart">
+      <div class="pg-cart-txt" id="cartText">
+        <strong>0 KG</strong> &nbsp;•&nbsp; ₹0
+      </div>
+      <button class="pg-cart-btn" onclick="placeOrder()">Place Order 🥭</button>
+    </div>
+
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toast"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

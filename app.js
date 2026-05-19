@@ -186,7 +186,7 @@ async function placeOrder() {
   }
 
   if (!name || !phone || phone.length !== 10 || !/^\d{10}$/.test(phone) || !hno || !apartment || !locality || !pincode) {                                                                                                                  
-    showToast("Fill all details");
+    showToast(!phone || !/^\d{10}$/.test(phone) ? "Enter a valid 10-digit phone number" : "Fill all details");
     return;
   }
 

@@ -723,7 +723,7 @@ try {
   });
 } catch(e) { console.error(e); }
 
-showToast(`Order placed! 🥭 Your Ref ID: #${referenceId}`);
+showToast(`Order placed! 🥭 Your Ref ID: #${referenceId}`, 15000);
 
 // Clear everything
 sessionStorage.removeItem('cart');
@@ -734,13 +734,12 @@ setTimeout(() => window.location.href = 'index.html', 2000);
     // =============================
     // TOAST
     // =============================
-    function showToast(msg) {
-      const t = document.getElementById('toast');
-      t.innerText = msg;
-      t.style.display = 'block';
-      setTimeout(() => t.style.display = 'none', 3000);
-    }
-
+function showToast(msg, duration = 3000) {
+  const t = document.getElementById('toast');
+  t.innerText = msg;
+  t.style.display = 'block';
+  setTimeout(() => t.style.display = 'none', duration);
+}
     // Init
     renderCart();
   </script>

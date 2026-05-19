@@ -176,14 +176,14 @@ body {
 }
 
 .pg-card-name {
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 600;
   color: var(--maroon);
   margin-bottom: 2px;
 }
 
 .pg-card-origin {
-  font-size: 11px;
+  font-size: 13px;
   color: var(--maroon-60);
   margin-bottom: 6px;
 }
@@ -192,7 +192,7 @@ body {
   display: inline-block;
   background: var(--maroon);
   color: var(--cream);
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 600;
   padding: 3px 8px;
   border-radius: 6px;
@@ -200,7 +200,7 @@ body {
 }
 
 .pg-card-stock {
-  font-size: 10px;
+  font-size: 13px;
   color: var(--terra);
   font-weight: 600;
   margin-bottom: 8px;
@@ -244,7 +244,7 @@ body {
 .qty-btn:active { opacity: 0.75; }
 
 .qty-display {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--maroon);
 }

@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Your Cart — Mango Grove</title>
+  <link rel="icon" type="image/png" href="nuzvidagrifarms_logo.png"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=DM+Sans:wght@300;400;600&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <style>
+    /* ── Reset ── */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --maroon:     #5C1A1A;
+      --terra:      #D4956A;
+      --cream:      #F5EDD8;
+      --cream-soft: #FDF5E8;
+      --maroon-60:  rgba(92,26,26,0.60);
+      --maroon-20:  rgba(92,26,26,0.20);
+      --terra-50:   rgba(212,149,106,0.50);
+      --terra-40:   rgba(212,149,106,0.40);
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--maroon);
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    .ct-header {
+      background: var(--cream);
+      padding: 14px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 0.5px solid var(--terra-50);
+    }
+
+    .ct-back {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: none;
+      border: 0.5px solid var(--terra-50);
+      border-radius: 8px;
+      padding: 6px 12px;
+      color: var(--maroon);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .ct-logo {
+      height: 48px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    .ct-logo-fallback {
+      font-family: 'Playfair Display', serif;
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--maroon);
+    }
+
+    /* ── Hero strip ── */
+    .ct-hero {
+      background: var(--maroon);
+      padding: 18px 24px;
+      text-align: center;
+    }
+
+    .ct-hero h1 {
+      font-family: 'Playfair Display', serif;
+      color: var(--cream);
+      font-size: 24px;
+      font-weight: 800;
+    }
+
+    .ct-hero h1 span { color: var(--terra); }
+
+    .ct-hero p {
+      color: rgba(212,149,106,0.60);
+      font-size: 12px;
+      margin-top: 4px;
+    }
+
+    /* ── Body ── */
+    .ct-body {
+      padding: 20px 16px 120px;
+      max-width: 100%;
+    }
+
+    .ct-section-title {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--maroon-60);
+      margin-bottom: 12px;
+    }
+
+    /* ── Cart Item Row ── */
+    .ct-items {
+      background: #fff;
+      border: 0.5px solid var(--terra-40);
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+
+    .ct-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      border-bottom: 0.5px solid var(--terra-40);
+    }
+
+    .ct-item:last-child { border-bottom: none; }
+
+    .ct-item-emoji { font-size: 28px; flex-shrink: 0; }
+
+    .ct-item-info { flex: 1; }
+
+    .ct-item-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--maroon);
+    }
+
+    .ct-item-rate {
+      font-size: 12px;
+      color: var(--maroon-60);
+      margin-top: 2px;
+    }
+
+    .ct-item-subtotal {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--maroon);
+      text-align: right;
+      min-width: 70px;
+    }
+
+    .ct-item-subtotal span {
+      display: block;
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--maroon-60);
+    }
+
+    /* qty control inside cart */
+    .ct-qty {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .ct-qty-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--maroon);
+      color: var(--cream);
+      border: none;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .ct-qty-display {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--maroon);
+      min-width: 40px;
+    }
+
+    /* ── Delivery Instructions ── */
+    .ct-instructions {
+      background: #fff;
+      border: 0.5px solid var(--terra-40);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .ct-instructions h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 16px;
+      color: var(--maroon);
+      margin-bottom: 10px;
+    }
+
+    .ct-textarea {
+      width: 100%;
+      padding: 10px 14px;
+      border: 0.5px solid rgba(212,149,106,0.60);
+      border-radius: 10px;
+      background: var(--cream-soft);
+      color: var(--maroon);
+      font-size: 13px;
+      font-family: 'DM Sans', sans-serif;
+      outline: none;
+      resize: none;
+    }
+
+    .ct-textarea::placeholder { color: var(--maroon-60); }
+    .ct-textarea:focus { border-color: var(--terra); }
+
+    /* ── Cost Breakdown ── */
+    .ct-breakdown {
+      background: #fff;
+      border: 0.5px solid var(--terra-40);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .ct-breakdown h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 16px;
+      color: var(--maroon);
+      margin-bottom: 12px;
+    }
+
+    .ct-breakdown-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 0.5px solid var(--terra-40);
+      font-size: 14px;
+    }
+
+    .ct-breakdown-row:last-child { border-bottom: none; }
+
+    .ct-breakdown-row .item-name { color: var(--maroon-60); }
+    .ct-breakdown-row .item-detail { font-size: 12px; color: var(--maroon-60); margin-top: 2px; }
+
+    .ct-breakdown-row .item-price {
+      font-weight: 600;
+      color: var(--maroon);
+    }
+
+    .ct-total-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0 0;
+      margin-top: 4px;
+    }
+
+    .ct-total-label {
+      font-family: 'Playfair Display', serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--maroon);
+    }
+
+    .ct-total-price {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--maroon);
+    }
+
+    /* ── Bottom Bar ── */
+    .ct-bottom {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--maroon);
+      padding: 14px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 10;
+    }
+
+    .ct-bottom-txt {
+      color: var(--terra);
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .ct-bottom-txt strong { color: var(--cream); }
+
+    .ct-place-btn {
+      background: var(--terra);
+      color: var(--maroon);
+      border: none;
+      padding: 10px 24px;
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .ct-place-btn:active { opacity: 0.85; }
+
+    /* ── Empty state ── */
+    .ct-empty {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--maroon-60);
+    }
+
+    .ct-empty p { margin-top: 10px; font-size: 14px; }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: var(--maroon);
+      color: var(--cream);
+      padding: 14px 20px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      display: none;
+      z-index: 999;
+      border: 0.5px solid var(--terra-50);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="ct-header">
+    <button class="ct-back" onclick="window.location.href='index.html'">← Back</button>
+    <img
+      src="nuzvidagrifarms_logo.png"
+      alt="Nuzvid Agri Farms"
+      class="ct-logo"
+      onerror="this.style.display='none';this.insertAdjacentHTML('afterend','<span class=\'ct-logo-fallback\'>Nuzvid Agri Farms</span>')"
+    />
+  </div>
+
+  <!-- Hero -->
+  <div class="ct-hero">
+    <h1>Your <span>Cart</span></h1>
+    <p>Review your order before placing</p>
+  </div>
+
+  <!-- Body -->
+  <div class="ct-body">
+
+    <!-- Section 1: Cart Items -->
+    <div class="ct-section-title">Your Mangoes</div>
+    <div class="ct-items" id="cartItems"></div>
+
+    <!-- Section 2: Delivery Instructions -->
+    <div class="ct-instructions">
+      <h3>Delivery Instructions</h3>
+      <textarea class="ct-textarea" id="deliveryNote" rows="3"
+        placeholder="e.g. Call before delivery, Leave at door, Deliver after 6pm..."></textarea>
+    </div>
+
+    <!-- Section 3: Cost Breakdown -->
+    <div class="ct-breakdown">
+      <h3>Order Summary</h3>
+      <div id="costBreakdown"></div>
+      <div class="ct-total-row">
+        <div class="ct-total-label">Total</div>
+        <div class="ct-total-price" id="totalPrice">₹0</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Bottom Bar -->
+  <div class="ct-bottom">
+    <div class="ct-bottom-txt">
+      <strong id="bottomKg">0 KG</strong> &nbsp;•&nbsp; <span id="bottomPrice">₹0</span>
+    </div>
+    <button class="ct-place-btn" onclick="placeOrder()">Place Order 🥭</button>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // =============================
+    // SUPABASE CONFIG
+    // =============================
+    const SUPABASE_URL = "https://yqjmrgutfcnqbfmprbix.supabase.co";
+    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlxam1yZ3V0ZmNucWJmbXByYml4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgwODE2MTYsImV4cCI6MjA5MzY1NzYxNn0.uuQASHyr-EOLTnYabvA3Qua2wrsYaFNZSNEZv_p-qOA";
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const BOT_TOKEN = "8601298792:AAEKGQxIlDhlPcgnWESK7rdNnDiu-aGPmjE";
+    const CHAT_ID   = "8669042491";
+
+    // =============================
+    // LOAD STATE FROM SESSION
+    // =============================
+    let cart    = JSON.parse(sessionStorage.getItem('cart')    || '{}');
+    let mangoes = JSON.parse(sessionStorage.getItem('mangoes') || '[]');
+
+    // =============================
+    // RENDER CART ITEMS
+    // =============================
+    function renderCart() {
+      const items    = Object.values(cart);
+      const container = document.getElementById('cartItems');
+      const breakdown = document.getElementById('costBreakdown');
+
+      if (items.length === 0) {
+        container.innerHTML = `
+          <div class="ct-empty">
+            <div style="font-size:48px">🥭</div>
+            <p>Your cart is empty. <a href="index.html" style="color:var(--terra)">Go back</a> and add some mangoes!</p>
+          </div>`;
+        breakdown.innerHTML = '';
+        updateBottomBar();
+        return;
+      }
+
+      // Cart item rows
+      container.innerHTML = items.map(item => {
+        const mango    = mangoes.find(m => m.id === item.id) || item;
+        const subtotal = item.quantity * item.price_per_kg;
+        const maxed    = item.quantity >= mango.stock_kg;
+        return `
+          <div class="ct-item">
+            <div class="ct-item-emoji">${item.emoji}</div>
+            <div class="ct-item-info">
+              <div class="ct-item-name">${item.name}</div>
+              <div class="ct-item-rate">₹${item.price_per_kg}/KG</div>
+              <div class="ct-qty">
+                <button class="ct-qty-btn" onclick="decreaseQty('${item.id}')">−</button>
+                <div class="ct-qty-display">${item.quantity} KG</div>
+                <button class="ct-qty-btn" onclick="increaseQty('${item.id}')"
+                  ${maxed ? 'disabled style="opacity:0.4;cursor:not-allowed;"' : ''}>+</button>
+              </div>
+            </div>
+            <div class="ct-item-subtotal">
+              ₹${subtotal}
+              <span>${item.quantity} KG</span>
+            </div>
+          </div>`;
+      }).join('');
+
+      // Cost breakdown
+      breakdown.innerHTML = items.map(item => {
+        const subtotal = item.quantity * item.price_per_kg;
+        return `
+          <div class="ct-breakdown-row">
+            <div>
+              <div class="item-name">${item.name}</div>
+              <div class="item-detail">${item.quantity} KG × ₹${item.price_per_kg}</div>
+            </div>
+            <div class="item-price">₹${subtotal}</div>
+          </div>`;
+      }).join('');
+
+      updateBottomBar();
+    }
+
+    function updateBottomBar() {
+      const items      = Object.values(cart);
+      const totalKg    = items.reduce((s, i) => s + i.quantity, 0);
+      const totalPrice = items.reduce((s, i) => s + i.quantity * i.price_per_kg, 0);
+      document.getElementById('bottomKg').textContent    = `${totalKg} KG`;
+      document.getElementById('bottomPrice').textContent = `₹${totalPrice}`;
+      document.getElementById('totalPrice').textContent  = `₹${totalPrice}`;
+    }
+
+    // =============================
+    // INCREASE / DECREASE QTY
+    // =============================
+    function increaseQty(id) {
+      const mango = mangoes.find(m => m.id === id);
+      if (!mango) return;
+      if (!cart[id]) return;
+      if (cart[id].quantity + 5 > mango.stock_kg) {
+        showToast(`Only ${mango.stock_kg} KG available`);
+        return;
+      }
+      cart[id].quantity += 5;
+      sessionStorage.setItem('cart', JSON.stringify(cart));
+      renderCart();
+    }
+
+    function decreaseQty(id) {
+      if (!cart[id]) return;
+      cart[id].quantity -= 5;
+      if (cart[id].quantity <= 0) delete cart[id];
+      sessionStorage.setItem('cart', JSON.stringify(cart));
+      renderCart();
+    }
+
+    // =============================
+    // PLACE ORDER
+    // =============================
+    async function placeOrder() {
+      const items = Object.values(cart);
+
+      if (items.length === 0) {
+        showToast("Your cart is empty");
+        return;
+      }
+
+      // Read customer details saved in sessionStorage from index.html
+      const name    = sessionStorage.getItem('customerName')    || '';
+      const phone   = sessionStorage.getItem('customerPhone')   || '';
+      const address = sessionStorage.getItem('customerAddress') || '';
+      const note    = document.getElementById('deliveryNote').value.trim();
+
+      if (!name || !phone || !address) {
+        showToast("Go back and fill your details");
+        return;
+      }
+
+      // Final stock check
+      const { data: latestStock, error: stockError } =
+        await supabaseClient.from('mango_stock').select('*');
+
+      if (stockError) { showToast("Stock validation failed"); return; }
+
+      for (const item of items) {
+        const latest = latestStock.find(m => m.id === item.id);
+        if (!latest)                         { showToast(`${item.name} unavailable`); return; }
+        if (item.quantity > latest.stock_kg) { showToast(`${item.name} only has ${latest.stock_kg} KG left`); return; }
+      }
+
+      const totalKg    = items.reduce((s, i) => s + i.quantity, 0);
+      const totalPrice = items.reduce((s, i) => s + i.quantity * i.price_per_kg, 0);
+
+      // Save order
+      const { error } = await supabaseClient.from('orders').insert({
+        customer_name: name,
+        phone,
+        address,
+        order_data:    items,
+        total_kg:      totalKg,
+        total_price:   totalPrice,
+        delivery_note: note
+      });
+
+      if (error) { console.error(error); showToast("Order failed"); return; }
+
+      // Update stock
+      await Promise.all(
+        items.map(item => {
+          const latest   = latestStock.find(m => m.id === item.id);
+          const newStock = latest.stock_kg - item.quantity;
+          return supabaseClient.from('mango_stock').update({ stock_kg: newStock }).eq('id', item.id);
+        })
+      );
+
+      // Telegram
+      const itemsText = items.map(i => `• ${i.name} × ${i.quantity} KG — ₹${i.quantity * i.price_per_kg}`).join('\n');
+      const msg = `🥭 New Mango Order\n\n${itemsText}\n\n💰 Total: ₹${totalPrice}\n\n👤 ${name}\n📞 ${phone}\n📍 ${address}${note ? `\n📝 Note: ${note}` : ''}`;
+
+      try {
+        await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ chat_id: CHAT_ID, text: msg })
+        });
+      } catch(e) { console.error(e); }
+
+      showToast("Order placed successfully! 🥭");
+
+      // Clear everything
+      sessionStorage.clear();
+      setTimeout(() => window.location.href = 'index.html', 2000);
+    }
+
+    // =============================
+    // TOAST
+    // =============================
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.innerText = msg;
+      t.style.display = 'block';
+      setTimeout(() => t.style.display = 'none', 3000);
+    }
+
+    // Init
+    renderCart();
+  </script>
+</body>
+</html>

@@ -173,32 +173,6 @@ function updateCartUI() {
     `<strong>${totalKg} KG</strong> &nbsp;•&nbsp; ₹${totalPrice}`;
 }
 
-// =============================
-// PLACE ORDER
-// =============================
-
-async function placeOrder() {
-
-  const name    = document.getElementById('customerName').value.trim();
-  const phone   = document.getElementById('customerPhone').value.trim();
-  const hno       = document.getElementById('addrHno').value.trim();
-  const apartment = document.getElementById('addrApartment').value.trim();
-  const locality  = document.getElementById('addrLocality').value.trim();
-  const pincode   = document.getElementById('addrPincode').value.trim();
-  const address   = [hno, apartment, locality, pincode].filter(Boolean).join(', ');
-
-  const items = Object.values(cart);
-
-  if (items.length === 0) {
-    showToast("Add mangoes first");
-    return;
-  }
-
-  if (!name || !phone || phone.length !== 10 || !/^\d{10}$/.test(phone) || !hno || !apartment || !locality || !pincode) {                                                                                                                  
-    showToast(!phone || !/^\d{10}$/.test(phone) ? "Enter a valid 10-digit phone number" : "Fill all details");
-    return;
-  }
-
   // =============================
   // FINAL STOCK VALIDATION
   // =============================

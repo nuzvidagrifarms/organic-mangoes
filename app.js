@@ -14,8 +14,8 @@ const supabaseClient = supabase.createClient(
 // TELEGRAM CONFIG
 // =============================
 
-const BOT_TOKEN = "8601298792:AAEKGQxIlDhlPcgnWESK7rdNnDiu-aGPmjE";
-const CHAT_ID = "8669042491";
+const BOT_TOKEN = "8879560908:AAHkFqzkm6nz983haqwJXiobF5Jo22WE7Iw";
+const CHAT_ID = "7131196436";
 
 // =============================
 

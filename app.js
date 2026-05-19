@@ -333,3 +333,18 @@ function showToast(msg) {
     toast.style.display = 'none';
   }, 3000);
 }
+
+// =============================
+// GO TO CART
+// =============================
+function goToCart() {
+  const items = Object.values(cart);
+  if (items.length === 0) {
+    showToast("Add mangoes first");
+    return;
+  }
+  // Save cart to sessionStorage so cart.html can read it
+  sessionStorage.setItem('cart', JSON.stringify(cart));
+  sessionStorage.setItem('mangoes', JSON.stringify(mangoes));
+  window.location.href = 'cart.html';
+}

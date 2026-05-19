@@ -85,7 +85,7 @@ function renderMangoes() {
         <div class="pg-card-price">₹${m.price_per_kg}/KG</div>
 
         ${isSoldOut
-          ? `<div class="soldout-badge">SOLD OUT</div>`
+          ? `<div class="soldout-badge">OUT OF STOCK</div>`
           : `<div class="pg-card-stock">${remainingStock} KG left</div>
              <div class="qty-control">
                <button class="qty-btn" onclick="decreaseQty('${m.id}')">−</button>

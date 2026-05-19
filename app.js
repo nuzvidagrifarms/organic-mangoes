@@ -79,6 +79,9 @@ function renderMangoes() {
       <div class="pg-card-bot">
         <div class="pg-card-name">${m.name}</div>
         <div class="pg-card-origin">${m.origin}</div>
+        <div class="pg-card-origin">🌿 Organic</div>
+        <div class="pg-card-origin">🚫 Chemical Free</div>
+        <div class="pg-card-origin">☀️ Naturally Ripened</div>
         <div class="pg-card-price">₹${m.price_per_kg}/KG</div>
 
         ${isSoldOut

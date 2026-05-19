@@ -172,7 +172,11 @@ async function placeOrder() {
 
   const name    = document.getElementById('customerName').value.trim();
   const phone   = document.getElementById('customerPhone').value.trim();
-  const address = document.getElementById('customerAddress').value.trim();
+  const hno       = document.getElementById('addrHno').value.trim();
+  const apartment = document.getElementById('addrApartment').value.trim();
+  const locality  = document.getElementById('addrLocality').value.trim();
+  const pincode   = document.getElementById('addrPincode').value.trim();
+  const address   = [hno, apartment, locality, pincode].filter(Boolean).join(', ');
 
   const items = Object.values(cart);
 
@@ -181,7 +185,7 @@ async function placeOrder() {
     return;
   }
 
-  if (!name || !phone || !address) {
+  if (!name || !phone || !hno || !apartment || !locality || !pincode) {
     showToast("Fill all details");
     return;
   }
@@ -252,16 +256,16 @@ async function placeOrder() {
   // UPDATE STOCK
   // =============================
 
-  for (const item of items) {
-
-    const latest = latestStock.find(m => m.id === item.id);
-    const newStock = latest.stock_kg - item.quantity;
-
-    await supabaseClient
-      .from('mango_stock')
-      .update({ stock_kg: newStock })
-      .eq('id', item.id);
-  }
+  await Promise.all(
+    items.map(item => {
+      const latest = latestStock.find(m => m.id === item.id);
+      const newStock = latest.stock_kg - item.quantity;
+      return supabaseClient
+        .from('mango_stock')
+        .update({ stock_kg: newStock })
+        .eq('id', item.id);
+    })
+  );
 
   // =============================
   // TELEGRAM MESSAGE
@@ -306,7 +310,10 @@ ${itemsText}
 
   document.getElementById('customerName').value = '';
   document.getElementById('customerPhone').value = '';
-  document.getElementById('customerAddress').value = '';
+  document.getElementById('addrHno').value = '';
+  document.getElementById('addrApartment').value = '';
+  document.getElementById('addrLocality').value = '';
+  document.getElementById('addrPincode').value = '';
 
   loadMangoes();
 }

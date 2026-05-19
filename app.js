@@ -21,7 +21,7 @@ const CHAT_ID = "7131196436";
 
 let mangoes = [];
 
-const cart = {};
+const cart = JSON.parse(sessionStorage.getItem('cart') || '{}');;
 
 // =============================
 // LOAD MANGOES
@@ -108,6 +108,7 @@ function renderMangoes() {
 // =============================
 
 function increaseQty(id) {
+
   const mango = mangoes.find(m => m.id === id);
   if (!mango) return;
 
@@ -123,6 +124,10 @@ function increaseQty(id) {
   }
 
   cart[id].quantity += 5;
+
+  // SAVE CART
+  sessionStorage.setItem('cart', JSON.stringify(cart));
+
   renderMangoes();
 }
 
@@ -131,6 +136,7 @@ function increaseQty(id) {
 // =============================
 
 function decreaseQty(id) {
+
   if (!cart[id]) return;
 
   cart[id].quantity -= 5;
@@ -138,6 +144,9 @@ function decreaseQty(id) {
   if (cart[id].quantity <= 0) {
     delete cart[id];
   }
+
+  // SAVE CART
+  sessionStorage.setItem('cart', JSON.stringify(cart));
 
   renderMangoes();
 }

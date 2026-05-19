@@ -683,6 +683,8 @@ const address =
         showToast("Go back and fill your details");
         return;
       }
+const totalKg    = items.reduce((s, i) => s + i.quantity, 0);
+const totalPrice = items.reduce((s, i) => s + i.quantity * i.price_per_kg, 0);
 
 // Place order via RPC (atomic — handles stock check + deduct + insert)
 const orderItems = items.map(i => ({

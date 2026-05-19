@@ -40,7 +40,7 @@ async function loadMangoes() {
     return;
   }
 
-  mangoes = data;
+  mangoes = [...data.filter(m => m.stock_kg > 0), ...data.filter(m => m.stock_kg <= 0)];;
 
   renderMangoes();
 }

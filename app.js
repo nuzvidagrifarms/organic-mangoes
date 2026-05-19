@@ -185,7 +185,7 @@ async function placeOrder() {
     return;
   }
 
-  if (!name || !phone || !hno || !apartment || !locality || !pincode) {
+  if (!name || !phone || phone.length !== 10 || !/^\d{10}$/.test(phone) || !hno || !apartment || !locality || !pincode) {                                                                                                                  
     showToast("Fill all details");
     return;
   }

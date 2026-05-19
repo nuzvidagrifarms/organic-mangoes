@@ -709,10 +709,11 @@ if (rpcError || rpcResult?.error) {
   showToast(rpcResult?.error || "Order failed");
   return;
 }
+const referenceId = rpcResult.order_id;
 
 // Telegram
 const itemsText = items.map(i => `• ${i.name} × ${i.quantity} KG — ₹${i.quantity * i.price_per_kg}`).join('\n');
-const msg = `🥭 New Mango Order\n\n${itemsText}\n\n💰 Total: ₹${totalPrice}\n\n👤 ${name}\n📞 ${phone}\n📍 ${address}${note ? `\n📝 Note: ${note}` : ''}`;
+const msg = `🥭 New Mango Order\n🔖 Ref ID: #${referenceId}\n\n${itemsText}\n\n💰 Total: ₹${totalPrice}\n\n👤 ${name}\n📞 ${phone}\n📍 ${address}${note ? `\n📝 Note: ${note}` : ''}`;
 
 try {
   await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
@@ -722,7 +723,7 @@ try {
   });
 } catch(e) { console.error(e); }
 
-showToast("Order placed successfully! 🥭");
+showToast(`Order placed! 🥭 Your Ref ID: #${referenceId}`);
 
 // Clear everything
 sessionStorage.removeItem('cart');

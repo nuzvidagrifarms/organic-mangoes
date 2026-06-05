@@ -231,13 +231,59 @@ let mangoes = JSON.parse(sessionStorage.getItem('mangoes') || '[]');
 // Reads offer_pct and offer_min_kg from the item itself (comes from Supabase via sessionStorage)
 // Returns discount amount in ₹ for this item, or 0 if not eligible
 // =============================
-function calcDiscount(item) {
-  const pct    = item.offer_pct    || 0;
-  const minKg  = item.offer_min_kg || 0;
-  if (pct <= 0 || minKg <= 0) return 0;
-  if (item.quantity < minKg) return 0;
-  const subtotal = item.quantity * item.price_per_kg;
-  return Math.round(subtotal * (pct / 100));
+function calcDiscountInfo(items) {
+
+  const eligibleItems =
+    items.filter(i => i.discount_eligible);
+
+  if (eligibleItems.length === 0) {
+    return {
+      totalDiscount: 0,
+      eligibleKg: 0,
+      offerPct: 0,
+      minKg: 0,
+      eligibleSubtotal: 0
+    };
+  }
+
+  const eligibleKg =
+    eligibleItems.reduce(
+      (s, i) => s + i.quantity,
+      0
+    );
+
+  const offerPct =
+    eligibleItems[0].offer_pct || 0;
+
+  const minKg =
+    eligibleItems[0].offer_min_kg || 0;
+
+  const eligibleSubtotal =
+    eligibleItems.reduce(
+      (s, i) =>
+        s + (i.quantity * i.price_per_kg),
+      0
+    );
+
+  if (eligibleKg < minKg) {
+    return {
+      totalDiscount: 0,
+      eligibleKg,
+      offerPct,
+      minKg,
+      eligibleSubtotal
+    };
+  }
+
+  return {
+    totalDiscount: Math.round(
+      eligibleSubtotal * (offerPct / 100)
+    ),
+    eligibleKg,
+    offerPct,
+    minKg,
+    eligibleSubtotal
+  };
 }
 
 // =============================
@@ -245,6 +291,7 @@ function calcDiscount(item) {
 // =============================
 function renderCart() {
   const items     = Object.values(cart);
+  const discountInfo = calcDiscountInfo(items);
   const container = document.getElementById('cartItems');
   const breakdown = document.getElementById('costBreakdown');
   const banner    = document.getElementById('discountBanner');
@@ -266,15 +313,43 @@ function renderCart() {
   container.innerHTML = items.map(item => {
     const mango    = mangoes.find(m => m.id === item.id) || item;
     const subtotal = item.quantity * item.price_per_kg;
-    const discount = calcDiscount(item);
+    let discount = 0;
+
+if (
+  item.discount_eligible &&
+  discountInfo.totalDiscount > 0
+) {
+  const itemSubtotal =
+    item.quantity * item.price_per_kg;
+
+  discount = Math.round(
+    discountInfo.totalDiscount *
+    itemSubtotal /
+    discountInfo.eligibleSubtotal
+  );
+}
     const maxed    = item.quantity >= mango.stock_kg;
     const pct      = item.offer_pct    || 0;
     const minKg    = item.offer_min_kg || 0;
 
     // hint shown when discount exists but qty hasn't reached threshold yet
-    const discountHint = (pct > 0 && item.quantity < minKg)
-      ? `<div style="font-size:11px;color:var(--green);margin-top:3px;">Add ${minKg - item.quantity} more KG for ${pct}% off!</div>`
-      : '';
+const discountHint =
+(
+  item.discount_eligible &&
+  discountInfo.eligibleKg <
+    discountInfo.minKg
+)
+?
+`<div style="font-size:11px;color:var(--green);margin-top:3px;">
+Add ${
+  discountInfo.minKg -
+  discountInfo.eligibleKg
+} more KG of eligible mangoes for ${
+  discountInfo.offerPct
+}% off!
+</div>`
+:
+'';
 
     return `
       <div class="ct-item">
@@ -302,7 +377,9 @@ function renderCart() {
   }).join('');
 
   // ── Order summary breakdown ──
-  let rawTotal      = 0;
+let rawTotal = 0;
+const totalDiscount =
+  discountInfo.totalDiscount;
   let totalDiscount = 0;
 
   const itemRows = items.map(item => {
@@ -311,7 +388,6 @@ function renderCart() {
     const pct      = item.offer_pct    || 0;
     const minKg    = item.offer_min_kg || 0;
     rawTotal      += subtotal;
-    totalDiscount += discount;
 
     let html = `
       <div class="ct-breakdown-row">
@@ -350,8 +426,8 @@ function renderCart() {
   breakdown.innerHTML = itemRows + summaryLines;
 
   // ── Banner ──
-  const discountedItems = items.filter(i => calcDiscount(i) > 0);
-  if (discountedItems.length > 0) {
+  const discountedItems = items.filter(i => i.discount_eligible);
+  if (discountedItems.totalDiscount > 0) {
     banner.style.display = 'flex';
     bannerTxt.textContent = `Discount applied on ${discountedItems.map(i => i.name).join(' & ')}!`;
   } else {
@@ -362,15 +438,37 @@ function renderCart() {
 }
 
 function updateBottomBar() {
-  const items         = Object.values(cart);
-  const totalKg       = items.reduce((s, i) => s + i.quantity, 0);
-  const rawTotal      = items.reduce((s, i) => s + i.quantity * i.price_per_kg, 0);
-  const totalDiscount = items.reduce((s, i) => s + calcDiscount(i), 0);
-  const finalTotal    = rawTotal - totalDiscount;
 
-  document.getElementById('bottomKg').textContent    = `${totalKg} KG`;
-  document.getElementById('bottomPrice').textContent = `₹${finalTotal}`;
-  document.getElementById('totalPrice').textContent  = `₹${finalTotal}`;
+  const items = Object.values(cart);
+
+  const totalKg =
+    items.reduce(
+      (s, i) => s + i.quantity,
+      0
+    );
+
+  const rawTotal =
+    items.reduce(
+      (s, i) =>
+        s + i.quantity * i.price_per_kg,
+      0
+    );
+
+  const discountInfo =
+    calcDiscountInfo(items);
+
+  const finalTotal =
+    rawTotal -
+    discountInfo.totalDiscount;
+
+  document.getElementById('bottomKg').textContent =
+    `${totalKg} KG`;
+
+  document.getElementById('bottomPrice').textContent =
+    `₹${finalTotal}`;
+
+  document.getElementById('totalPrice').textContent =
+    `₹${finalTotal}`;
 }
 
 // =============================
@@ -419,13 +517,14 @@ async function placeOrder() {
 
   const totalKg       = items.reduce((s, i) => s + i.quantity, 0);
   const rawTotal      = items.reduce((s, i) => s + i.quantity * i.price_per_kg, 0);
-  const totalDiscount = items.reduce((s, i) => s + calcDiscount(i), 0);
+  const discountInfo = calcDiscountInfo(items);
+  const totalDiscount = discountInfo.totalDiscount; 
   const finalTotal    = rawTotal - totalDiscount;
 
   const orderItems = items.map(i => ({
     id: i.id, name: i.name, emoji: i.emoji,
     quantity: i.quantity, price_per_kg: i.price_per_kg,
-    discount: calcDiscount(i)
+    discount: 0
   }));
 
   const { data: rpcResult, error: rpcError } = await supabaseClient.rpc('place_order', {

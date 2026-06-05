@@ -40,7 +40,7 @@ async function loadMangoes() {
     return;
   }
 
-  mangoes = [...data.filter(m => m.stock_kg > 0), ...data.filter(m => m.stock_kg <= 0)];;
+  mangoes = [...data.filter(m => m.stock_kg > 0), ...data.filter(m => m.stock_kg <= 0)];
 
   renderMangoes();
 }
@@ -60,21 +60,23 @@ function renderMangoes() {
   mangoes.forEach(m => {
 
     const qty = cart[m.id]?.quantity || 0;
-
     const remainingStock = m.stock_kg - qty;
-
     const isSoldOut = m.stock_kg <= 0;
 
     const card = document.createElement('div');
-
     card.className = 'mango-card';
-
     if (qty > 0) card.classList.add('selected');
     if (isSoldOut) card.classList.add('sold-out');
+
+    // Show discount badge only if offer_pct > 0
+    const discountBadge = (m.offer_pct > 0)
+      ? `<div class="discount-badge">🎉 ${m.offer_pct}% OFF on ${m.offer_min_kg}+ KG</div>`
+      : '';
 
     card.innerHTML = `
       <div class="pg-card-top">
         <div class="emoji">${m.emoji}</div>
+        ${discountBadge}
       </div>
       <div class="pg-card-bot">
         <div class="pg-card-name">${m.name}</div>
@@ -125,9 +127,7 @@ function increaseQty(id) {
 
   cart[id].quantity += 5;
 
-  // SAVE CART
   sessionStorage.setItem('cart', JSON.stringify(cart));
-
   renderMangoes();
 }
 
@@ -145,9 +145,7 @@ function decreaseQty(id) {
     delete cart[id];
   }
 
-  // SAVE CART
   sessionStorage.setItem('cart', JSON.stringify(cart));
-
   renderMangoes();
 }
 
@@ -159,15 +157,8 @@ function updateCartUI() {
 
   const items = Object.values(cart);
 
-  const totalKg = items.reduce(
-    (sum, item) => sum + item.quantity,
-    0
-  );
-
-  const totalPrice = items.reduce(
-    (sum, item) => sum + (item.quantity * item.price_per_kg),
-    0
-  );
+  const totalKg = items.reduce((sum, item) => sum + item.quantity, 0);
+  const totalPrice = items.reduce((sum, item) => sum + (item.quantity * item.price_per_kg), 0);
 
   document.getElementById('cartText').innerHTML =
     `<strong>${totalKg} KG</strong> &nbsp;•&nbsp; ₹${totalPrice}`;
@@ -180,7 +171,6 @@ function updateCartUI() {
 function showToast(msg) {
 
   const toast = document.getElementById('toast');
-
   toast.innerText = msg;
   toast.style.display = 'block';
 
@@ -192,13 +182,13 @@ function showToast(msg) {
 // =============================
 // GO TO CART
 // =============================
+
 function goToCart() {
   const items = Object.values(cart);
   if (items.length === 0) {
     showToast("Add mangoes first");
     return;
   }
-  // Save cart to sessionStorage so cart.html can read it
   sessionStorage.setItem('cart', JSON.stringify(cart));
   sessionStorage.setItem('mangoes', JSON.stringify(mangoes));
   window.location.href = 'cart.html';

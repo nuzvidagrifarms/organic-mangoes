@@ -409,31 +409,31 @@ if (
         <div class="item-price">₹${subtotal}</div>
       </div>`;
 
-    if (discount > 0) {
-      html += `
-        <div class="ct-breakdown-row discount-row">
-          <div>
-            <div class="item-name">🎉 Bulk Discount</div>
-            <div class="item-detail">${pct}% off (min ${minKg} KG)</div>
-          </div>
-          <div class="item-price">−₹${discount}</div>
-        </div>`;
-    }
-
     return html;
   }).join('');
 
   // summary lines only shown when at least one discount is active
-  const summaryLines = totalDiscount > 0 ? `
-    <div class="ct-summary-row">
-      <span class="label">Subtotal</span>
-      <span class="value">₹${rawTotal}</span>
-    </div>
-    <div class="ct-summary-row savings">
-      <span class="label">Total Savings</span>
-      <span class="value">−₹${totalDiscount}</span>
-    </div>` : '';
+const summaryLines = `
+  <div class="ct-summary-row">
+    <span class="label">Subtotal</span>
+    <span class="value">₹${rawTotal}</span>
+  </div>
 
+  ${
+    totalDiscount > 0
+      ? `
+      <div class="ct-summary-row savings">
+        <span class="label">
+          Bulk Discount (${discountInfo.offerPct}%)
+        </span>
+        <span class="value">
+          −₹${totalDiscount}
+        </span>
+      </div>
+      `
+      : ''
+  }
+`;
   breakdown.innerHTML = itemRows + summaryLines;
 
   // ── Banner ──

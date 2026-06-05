@@ -71,7 +71,7 @@ function renderMangoes() {
     // Show discount badge only for discount eligible mangoes
     const discountBadge =
    (m.discount_eligible && m.offer_pct > 0)
-    ? `<div class="discount-badge">🎉 ${m.offer_pct}% OFF on ${m.offer_min_kg}+ KG</div>`
+    ? `<div class="discount-badge">🎉 Buy Any Eligible Mangoes - ${m.offer_min_kg}+ KG → ${m.offer_pct}% OFF </div>`
     : '';
 
     card.innerHTML = `

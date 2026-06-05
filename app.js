@@ -68,10 +68,11 @@ function renderMangoes() {
     if (qty > 0) card.classList.add('selected');
     if (isSoldOut) card.classList.add('sold-out');
 
-    // Show discount badge only if offer_pct > 0
-    const discountBadge = (m.offer_pct > 0)
-      ? `<div class="discount-badge">🎉 ${m.offer_pct}% OFF on ${m.offer_min_kg}+ KG</div>`
-      : '';
+    // Show discount badge only for discount eligible mangoes
+    const discountBadge =
+   (m.discount_eligible && m.offer_pct > 0)
+    ? `<div class="discount-badge">🎉 ${m.offer_pct}% OFF on ${m.offer_min_kg}+ KG</div>`
+    : '';
 
     card.innerHTML = `
       <div class="pg-card-top">

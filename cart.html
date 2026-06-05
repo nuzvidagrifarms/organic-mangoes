@@ -378,13 +378,24 @@ Add ${
 
   // ── Order summary breakdown ──
 let rawTotal = 0;
-const totalDiscount =
-  discountInfo.totalDiscount;
-  let totalDiscount = 0;
-
+const totalDiscount = discountInfo.totalDiscount;
   const itemRows = items.map(item => {
     const subtotal = item.quantity * item.price_per_kg;
-    const discount = calcDiscount(item);
+    let discount = 0;
+
+if (
+  item.discount_eligible &&
+  discountInfo.totalDiscount > 0
+) {
+  const itemSubtotal =
+    item.quantity * item.price_per_kg;
+
+  discount = Math.round(
+    discountInfo.totalDiscount *
+    itemSubtotal /
+    discountInfo.eligibleSubtotal
+  );
+}
     const pct      = item.offer_pct    || 0;
     const minKg    = item.offer_min_kg || 0;
     rawTotal      += subtotal;
@@ -427,7 +438,7 @@ const totalDiscount =
 
   // ── Banner ──
   const discountedItems = items.filter(i => i.discount_eligible);
-  if (discountedItems.totalDiscount > 0) {
+  if (discountInfo.totalDiscount > 0) {
     banner.style.display = 'flex';
     bannerTxt.textContent = `Discount applied on ${discountedItems.map(i => i.name).join(' & ')}!`;
   } else {
@@ -545,11 +556,34 @@ async function placeOrder() {
   const referenceId = rpcResult.order_id;
 
   // Telegram
-  const itemsText   = items.map(i => {
-    const disc = calcDiscount(i);
-    const net  = i.quantity * i.price_per_kg - disc;
-    return `• ${i.name} × ${i.quantity} KG — ₹${net}${disc > 0 ? ` (${i.offer_pct}% disc −₹${disc})` : ''}`;
-  }).join('\n');
+const itemsText = items.map(i => {
+
+  let disc = 0;
+
+  if (
+    i.discount_eligible &&
+    discountInfo.totalDiscount > 0
+  ) {
+    const itemSubtotal =
+      i.quantity * i.price_per_kg;
+
+    disc = Math.round(
+      discountInfo.totalDiscount *
+      itemSubtotal /
+      discountInfo.eligibleSubtotal
+    );
+  }
+
+  const net =
+    i.quantity * i.price_per_kg - disc;
+
+  return `• ${i.name} × ${i.quantity} KG — ₹${net}${
+    disc > 0
+      ? ` (${i.offer_pct}% disc −₹${disc})`
+      : ''
+  }`;
+
+}).join('\n');
   const discLine = totalDiscount > 0 ? `\n💸 Total Savings: −₹${totalDiscount}` : '';
   const msg = `🥭 New Mango Order\n🔖 Ref ID: #${referenceId}\n\n${itemsText}\n${discLine}\n💰 Total: ₹${finalTotal}\n\n👤 ${name}\n📞 ${phone}\n📍 ${address}${note ? `\n📝 Note: ${note}` : ''}`;
 

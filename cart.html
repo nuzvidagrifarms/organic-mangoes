@@ -1,804 +1,501 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Your Cart — Mango Grove</title>
-  <link rel="icon" type="image/png" href="nuzvidagrifarms_logo.png"/>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=DM+Sans:wght@300;400;600&display=swap" rel="stylesheet"/>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-  <style>
-    /* ── Reset ── */
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-
-    :root {
-      --maroon:     #5C1A1A;
-      --terra:      #D4956A;
-      --cream:      #F5EDD8;
-      --cream-soft: #FDF5E8;
-      --maroon-60:  rgba(92,26,26,0.60);
-      --maroon-20:  rgba(92,26,26,0.20);
-      --terra-50:   rgba(212,149,106,0.50);
-      --terra-40:   rgba(212,149,106,0.40);
-    }
-
-    body {
-      font-family: 'DM Sans', sans-serif;
-      background: var(--cream);
-      color: var(--maroon);
-      min-height: 100vh;
-    }
-
-    /* ── Header ── */
-    .ct-header {
-      background: var(--cream);
-      padding: 14px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 0.5px solid var(--terra-50);
-    }
-
-    .ct-back {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      background: none;
-      border: 0.5px solid var(--terra-50);
-      border-radius: 8px;
-      padding: 6px 12px;
-      color: var(--maroon);
-      font-family: 'DM Sans', sans-serif;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-
-    .ct-logo {
-      height: 48px;
-      width: auto;
-      object-fit: contain;
-    }
-
-    .ct-logo-fallback {
-      font-family: 'Playfair Display', serif;
-      font-size: 15px;
-      font-weight: 800;
-      color: var(--maroon);
-    }
-
-    /* ── Hero strip ── */
-    .ct-hero {
-      background: var(--maroon);
-      padding: 18px 24px;
-      text-align: center;
-    }
-
-    .ct-hero h1 {
-      font-family: 'Playfair Display', serif;
-      color: var(--cream);
-      font-size: 24px;
-      font-weight: 800;
-    }
-
-    .ct-hero h1 span { color: var(--terra); }
-
-    .ct-hero p {
-      color: rgba(212,149,106,0.60);
-      font-size: 12px;
-      margin-top: 4px;
-    }
-
-    /* ── Body ── */
-    .ct-body {
-      padding: 20px 16px 120px;
-      max-width: 100%;
-    }
-
-    .ct-section-title {
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      color: var(--maroon-60);
-      margin-bottom: 12px;
-    }
-
-    /* ── Cart Item Row ── */
-    .ct-items {
-      background: #fff;
-      border: 0.5px solid var(--terra-40);
-      border-radius: 16px;
-      overflow: hidden;
-      margin-bottom: 16px;
-    }
-
-    .ct-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 14px 16px;
-      border-bottom: 0.5px solid var(--terra-40);
-    }
-
-    .ct-item:last-child { border-bottom: none; }
-
-    .ct-item-emoji { font-size: 28px; flex-shrink: 0; }
-
-    .ct-item-info { flex: 1; }
-
-    .ct-item-name {
-      font-size: 15px;
-      font-weight: 600;
-      color: var(--maroon);
-    }
-
-    .ct-item-rate {
-      font-size: 12px;
-      color: var(--maroon-60);
-      margin-top: 2px;
-    }
-
-    .ct-item-subtotal {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--maroon);
-      text-align: right;
-      min-width: 70px;
-    }
-
-    .ct-item-subtotal span {
-      display: block;
-      font-size: 11px;
-      font-weight: 400;
-      color: var(--maroon-60);
-    }
-
-    /* qty control inside cart */
-    .ct-qty {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-top: 8px;
-    }
-
-    .ct-qty-btn {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      background: var(--maroon);
-      color: var(--cream);
-      border: none;
-      font-size: 16px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-
-    .ct-qty-display {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--maroon);
-      min-width: 40px;
-    }
-
-    /* ── Delivery Instructions ── */
-    .ct-instructions {
-      background: #fff;
-      border: 0.5px solid var(--terra-40);
-      border-radius: 16px;
-      padding: 16px;
-      margin-bottom: 16px;
-    }
-
-    .ct-instructions h3 {
-      font-family: 'Playfair Display', serif;
-      font-size: 16px;
-      color: var(--maroon);
-      margin-bottom: 10px;
-    }
-
-    .ct-textarea {
-      width: 100%;
-      padding: 10px 14px;
-      border: 0.5px solid rgba(212,149,106,0.60);
-      border-radius: 10px;
-      background: var(--cream-soft);
-      color: var(--maroon);
-      font-size: 13px;
-      font-family: 'DM Sans', sans-serif;
-      outline: none;
-      resize: none;
-    }
-
-    /* ── Address Section ── */
-
-.ct-address-label {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  color: var(--maroon-60);
-  border-top: 0.5px solid var(--terra-40);
-  padding-top: 14px;
-  margin-bottom: 14px;
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Your Cart — Mango Grove</title>
+<link rel="icon" type="image/png" href="nuzvidagrifarms_logo.png"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=DM+Sans:wght@300;400;600&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<style>
+/* ── Reset ── */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --maroon: #5C1A1A;
+  --terra: #D4956A;
+  --cream: #F5EDD8;
+  --cream-soft: #FDF5E8;
+  --maroon-60: rgba(92,26,26,0.60);
+  --maroon-20: rgba(92,26,26,0.20);
+  --terra-50: rgba(212,149,106,0.50);
+  --terra-40: rgba(212,149,106,0.40);
+  --green: #2E7D32;
+  --green-bg: #E8F5E9;
 }
+body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--maroon); min-height: 100vh; }
 
-.ct-address-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
+/* ── Header ── */
+.ct-header { background: var(--cream); padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 0.5px solid var(--terra-50); }
+.ct-back { display: flex; align-items: center; gap: 6px; background: none; border: 0.5px solid var(--terra-50); border-radius: 8px; padding: 6px 12px; color: var(--maroon); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; }
+.ct-logo { height: 48px; width: auto; object-fit: contain; }
+.ct-logo-fallback { font-family: 'Playfair Display', serif; font-size: 15px; font-weight: 800; color: var(--maroon); }
 
-.ct-address-field {
+/* ── Hero strip ── */
+.ct-hero { background: var(--maroon); padding: 18px 24px; text-align: center; }
+.ct-hero h1 { font-family: 'Playfair Display', serif; color: var(--cream); font-size: 24px; font-weight: 800; }
+.ct-hero h1 span { color: var(--terra); }
+.ct-hero p { color: rgba(212,149,106,0.60); font-size: 12px; margin-top: 4px; }
+
+/* ── Discount Banner ── */
+.ct-discount-banner {
+  background: var(--green-bg);
+  border: 1px solid #A5D6A7;
+  border-radius: 12px;
+  padding: 10px 14px;
+  margin-bottom: 16px;
   display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.ct-field-label {
-  font-size: 11px;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--green);
   font-weight: 600;
-  color: var(--maroon);
-  letter-spacing: 0.3px;
 }
 
-.ct-req {
-  color: var(--terra);
-}
+/* ── Body ── */
+.ct-body { padding: 20px 16px 120px; max-width: 100%; }
+.ct-section-title { font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--maroon-60); margin-bottom: 12px; }
 
-.ct-input {
-  height: 44px;
-  resize: none;
-}
+/* ── Cart Item Row ── */
+.ct-items { background: #fff; border: 0.5px solid var(--terra-40); border-radius: 16px; overflow: hidden; margin-bottom: 16px; }
+.ct-item { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-bottom: 0.5px solid var(--terra-40); }
+.ct-item:last-child { border-bottom: none; }
+.ct-item-emoji { font-size: 28px; flex-shrink: 0; }
+.ct-item-info { flex: 1; }
+.ct-item-name { font-size: 15px; font-weight: 600; color: var(--maroon); }
+.ct-item-rate { font-size: 12px; color: var(--maroon-60); margin-top: 2px; }
+.ct-item-subtotal { font-size: 14px; font-weight: 600; color: var(--maroon); text-align: right; min-width: 70px; }
+.ct-item-subtotal span { display: block; font-size: 11px; font-weight: 400; color: var(--maroon-60); }
 
-@media (max-width: 480px) {
-  .ct-address-grid {
-    grid-template-columns: 1fr;
-  }
-}
+/* qty control */
+.ct-qty { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+.ct-qty-btn { width: 28px; height: 28px; border-radius: 50%; background: var(--maroon); color: var(--cream); border: none; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.ct-qty-display { font-size: 13px; font-weight: 600; color: var(--maroon); min-width: 40px; }
 
-    .ct-textarea::placeholder { color: var(--maroon-60); }
-    .ct-textarea:focus { border-color: var(--terra); }
+/* ── Instructions / Address ── */
+.ct-instructions { background: #fff; border: 0.5px solid var(--terra-40); border-radius: 16px; padding: 16px; margin-bottom: 16px; }
+.ct-instructions h3 { font-family: 'Playfair Display', serif; font-size: 16px; color: var(--maroon); margin-bottom: 10px; }
+.ct-textarea { width: 100%; padding: 10px 14px; border: 0.5px solid rgba(212,149,106,0.60); border-radius: 10px; background: var(--cream-soft); color: var(--maroon); font-size: 13px; font-family: 'DM Sans', sans-serif; outline: none; resize: none; }
+.ct-address-label { font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--maroon-60); border-top: 0.5px solid var(--terra-40); padding-top: 14px; margin-bottom: 14px; }
+.ct-address-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.ct-address-field { display: flex; flex-direction: column; gap: 5px; }
+.ct-field-label { font-size: 11px; font-weight: 600; color: var(--maroon); letter-spacing: 0.3px; }
+.ct-req { color: var(--terra); }
+.ct-input { height: 44px; resize: none; }
+@media (max-width: 480px) { .ct-address-grid { grid-template-columns: 1fr; } }
+.ct-textarea::placeholder { color: var(--maroon-60); }
+.ct-textarea:focus { border-color: var(--terra); }
 
-    /* ── Cost Breakdown ── */
-    .ct-breakdown {
-      background: #fff;
-      border: 0.5px solid var(--terra-40);
-      border-radius: 16px;
-      padding: 16px;
-      margin-bottom: 16px;
-    }
+/* ── Cost Breakdown ── */
+.ct-breakdown { background: #fff; border: 0.5px solid var(--terra-40); border-radius: 16px; padding: 16px; margin-bottom: 16px; }
+.ct-breakdown h3 { font-family: 'Playfair Display', serif; font-size: 16px; color: var(--maroon); margin-bottom: 12px; }
+.ct-breakdown-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 8px 0; border-bottom: 0.5px solid var(--terra-40); font-size: 14px; }
+.ct-breakdown-row:last-child { border-bottom: none; }
+.ct-breakdown-row .item-name { color: var(--maroon-60); }
+.ct-breakdown-row .item-detail { font-size: 12px; color: var(--maroon-60); margin-top: 2px; }
+.ct-breakdown-row .item-price { font-weight: 600; color: var(--maroon); white-space: nowrap; }
 
-    .ct-breakdown h3 {
-      font-family: 'Playfair Display', serif;
-      font-size: 16px;
-      color: var(--maroon);
-      margin-bottom: 12px;
-    }
+/* discount row */
+.ct-breakdown-row.discount-row .item-name { color: var(--green); font-weight: 600; }
+.ct-breakdown-row.discount-row .item-detail { color: var(--green); opacity: 0.8; }
+.ct-breakdown-row.discount-row .item-price { color: var(--green); }
 
-    .ct-breakdown-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 8px 0;
-      border-bottom: 0.5px solid var(--terra-40);
-      font-size: 14px;
-    }
+/* subtotal / total discount summary lines */
+.ct-summary-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; font-size: 14px; border-top: 0.5px solid var(--terra-40); margin-top: 4px; }
+.ct-summary-row .label { color: var(--maroon-60); }
+.ct-summary-row .value { font-weight: 600; color: var(--maroon); }
+.ct-summary-row.savings .label { color: var(--green); font-weight: 600; }
+.ct-summary-row.savings .value { color: var(--green); font-weight: 700; }
 
-    .ct-breakdown-row:last-child { border-bottom: none; }
+.ct-total-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0 0; margin-top: 4px; border-top: 1.5px solid var(--maroon-20); }
+.ct-total-label { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; color: var(--maroon); }
+.ct-total-price { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 800; color: var(--maroon); }
 
-    .ct-breakdown-row .item-name { color: var(--maroon-60); }
-    .ct-breakdown-row .item-detail { font-size: 12px; color: var(--maroon-60); margin-top: 2px; }
+/* ── Bottom Bar ── */
+.ct-bottom { position: fixed; bottom: 0; left: 0; right: 0; background: var(--maroon); padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; z-index: 10; }
+.ct-bottom-txt { color: var(--terra); font-size: 14px; font-weight: 600; }
+.ct-bottom-txt strong { color: var(--cream); }
+.ct-place-btn { background: var(--terra); color: var(--maroon); border: none; padding: 10px 24px; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 13px; cursor: pointer; }
+.ct-place-btn:active { opacity: 0.85; }
 
-    .ct-breakdown-row .item-price {
-      font-weight: 600;
-      color: var(--maroon);
-    }
+/* ── Empty state ── */
+.ct-empty { text-align: center; padding: 60px 20px; color: var(--maroon-60); }
+.ct-empty p { margin-top: 10px; font-size: 14px; }
 
-    .ct-total-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 12px 0 0;
-      margin-top: 4px;
-    }
-
-    .ct-total-label {
-      font-family: 'Playfair Display', serif;
-      font-size: 18px;
-      font-weight: 700;
-      color: var(--maroon);
-    }
-
-    .ct-total-price {
-      font-family: 'Playfair Display', serif;
-      font-size: 22px;
-      font-weight: 800;
-      color: var(--maroon);
-    }
-
-    /* ── Bottom Bar ── */
-    .ct-bottom {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: var(--maroon);
-      padding: 14px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      z-index: 10;
-    }
-
-    .ct-bottom-txt {
-      color: var(--terra);
-      font-size: 14px;
-      font-weight: 600;
-    }
-
-    .ct-bottom-txt strong { color: var(--cream); }
-
-    .ct-place-btn {
-      background: var(--terra);
-      color: var(--maroon);
-      border: none;
-      padding: 10px 24px;
-      border-radius: 10px;
-      font-family: 'DM Sans', sans-serif;
-      font-weight: 700;
-      font-size: 13px;
-      cursor: pointer;
-    }
-
-    .ct-place-btn:active { opacity: 0.85; }
-
-    /* ── Empty state ── */
-    .ct-empty {
-      text-align: center;
-      padding: 60px 20px;
-      color: var(--maroon-60);
-    }
-
-    .ct-empty p { margin-top: 10px; font-size: 14px; }
-
-    /* ── Toast ── */
-    .toast {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: var(--maroon);
-      color: var(--cream);
-      padding: 14px 20px;
-      border-radius: 12px;
-      font-size: 13px;
-      font-weight: 600;
-      display: none;
-      z-index: 999;
-      border: 0.5px solid var(--terra-50);
-    }
-  </style>
+/* ── Toast ── */
+.toast { position: fixed; top: 20px; right: 20px; background: var(--maroon); color: var(--cream); padding: 14px 20px; border-radius: 12px; font-size: 13px; font-weight: 600; display: none; z-index: 999; border: 0.5px solid var(--terra-50); }
+</style>
 </head>
 <body>
 
-  <!-- Header -->
-  <div class="ct-header">
-    <button class="ct-back" onclick="window.location.href='index.html'">← Back</button>
-    <img
-      src="nuzvidagrifarms_logo.png"
-      alt="Nuzvid Agri Farms"
-      class="ct-logo"
-      onerror="this.style.display='none';this.insertAdjacentHTML('afterend','<span class=\'ct-logo-fallback\'>Nuzvid Agri Farms</span>')"
-    />
+<!-- Header -->
+<div class="ct-header">
+  <button class="ct-back" onclick="window.location.href='index.html'">← Back</button>
+  <img src="nuzvidagrifarms_logo.png" alt="Nuzvid Agri Farms" class="ct-logo"
+    onerror="this.style.display='none';this.insertAdjacentHTML('afterend','<span class=\'ct-logo-fallback\'>Nuzvid Agri Farms</span>')"/>
+</div>
+
+<!-- Hero -->
+<div class="ct-hero">
+  <h1>Your <span>Cart</span></h1>
+  <p>Review your order before placing</p>
+</div>
+
+<!-- Body -->
+<div class="ct-body">
+
+  <!-- Discount applied banner (shown only when at least one discount is active) -->
+  <div class="ct-discount-banner" id="discountBanner" style="display:none;">
+    <span>🎉</span>
+    <div id="discountBannerText"></div>
   </div>
 
-  <!-- Hero -->
-  <div class="ct-hero">
-    <h1>Your <span>Cart</span></h1>
-    <p>Review your order before placing</p>
+  <!-- Section 1: Cart Items -->
+  <div class="ct-section-title">Your Mangoes</div>
+  <div class="ct-items" id="cartItems"></div>
+
+  <!-- Section 2: Customer Details -->
+  <div class="ct-instructions">
+    <h3>Your Details</h3>
+    <input class="ct-textarea" type="text" id="customerName" placeholder="Your Name" style="margin-bottom:10px;height:44px;" />
+    <input class="ct-textarea" type="tel" id="customerPhone" placeholder="Phone Number" maxlength="10" inputmode="numeric" style="margin-bottom:10px;height:44px;" />
+    <div style="margin-top:14px;">
+      <div class="ct-address-label">Delivery Address</div>
+      <div class="ct-address-grid">
+        <div class="ct-address-field">
+          <label class="ct-field-label">H.No / Flat No <span class="ct-req">*</span></label>
+          <input class="ct-textarea ct-input" type="text" id="addrHno" placeholder="e.g. Flat 402" />
+        </div>
+        <div class="ct-address-field">
+          <label class="ct-field-label">Apartment Name <span class="ct-req">*</span></label>
+          <input class="ct-textarea ct-input" type="text" id="addrApartment" placeholder="e.g. Green Valley" />
+        </div>
+        <div class="ct-address-field">
+          <label class="ct-field-label">Locality / Area <span class="ct-req">*</span></label>
+          <input class="ct-textarea ct-input" type="text" id="addrLocality" placeholder="e.g. Banjara Hills" />
+        </div>
+        <div class="ct-address-field">
+          <label class="ct-field-label">Pincode <span class="ct-req">*</span></label>
+          <input class="ct-textarea ct-input" type="text" id="addrPincode" maxlength="6" inputmode="numeric" placeholder="e.g. 500034" />
+        </div>
+      </div>
+    </div>
   </div>
 
-  <!-- Body -->
-  <div class="ct-body">
-
-    <!-- Section 1: Cart Items -->
-    <div class="ct-section-title">Your Mangoes</div>
-    <div class="ct-items" id="cartItems"></div>
-
-    <!-- Section 2: Customer Details -->
-    <div class="ct-instructions">
-      <h3>Your Details</h3>
-
-      <input class="ct-textarea" type="text"
-        id="customerName"
-        placeholder="Your Name"
-        style="margin-bottom:10px;height:44px;" />
-
-      <input class="ct-textarea" type="tel"
-        id="customerPhone"
-        placeholder="Phone Number"
-        maxlength="10"
-        inputmode="numeric"
-        style="margin-bottom:10px;height:44px;" />
-
-<!-- Delivery Address -->
-<div style="margin-top:14px;">
-
-  <div class="ct-address-label">
-    Delivery Address
+  <!-- Section 3: Delivery Instructions -->
+  <div class="ct-instructions">
+    <h3>Delivery Instructions</h3>
+    <textarea class="ct-textarea" id="deliveryNote" rows="3" placeholder="e.g. Call before delivery, Leave at door, Deliver after 6pm..."></textarea>
   </div>
 
-  <div class="ct-address-grid">
-
-    <div class="ct-address-field">
-      <label class="ct-field-label">
-        H.No / Flat No <span class="ct-req">*</span>
-      </label>
-
-      <input
-        class="ct-textarea ct-input"
-        type="text"
-        id="addrHno"
-        placeholder="e.g. Flat 402"
-      />
+  <!-- Section 4: Order Summary -->
+  <div class="ct-breakdown">
+    <h3>Order Summary</h3>
+    <div id="costBreakdown"></div>
+    <div class="ct-total-row">
+      <div class="ct-total-label">Total</div>
+      <div class="ct-total-price" id="totalPrice">₹0</div>
     </div>
-
-    <div class="ct-address-field">
-      <label class="ct-field-label">
-        Apartment Name <span class="ct-req">*</span>
-      </label>
-
-      <input
-        class="ct-textarea ct-input"
-        type="text"
-        id="addrApartment"
-        placeholder="e.g. Green Valley"
-      />
-    </div>
-
-    <div class="ct-address-field">
-      <label class="ct-field-label">
-        Locality / Area <span class="ct-req">*</span>
-      </label>
-
-      <input
-        class="ct-textarea ct-input"
-        type="text"
-        id="addrLocality"
-        placeholder="e.g. Banjara Hills"
-      />
-    </div>
-
-    <div class="ct-address-field">
-      <label class="ct-field-label">
-        Pincode <span class="ct-req">*</span>
-      </label>
-
-      <input
-        class="ct-textarea ct-input"
-        type="text"
-        id="addrPincode"
-        maxlength="6"
-        inputmode="numeric"
-        placeholder="e.g. 500034"
-      />
-    </div>
-
   </div>
 
 </div>
-    </div>    
-    
-    <!-- Section 3: Delivery Instructions -->
-    <div class="ct-instructions">
-      <h3>Delivery Instructions</h3>
-      <textarea class="ct-textarea" id="deliveryNote" rows="3"
-        placeholder="e.g. Call before delivery, Leave at door, Deliver after 6pm..."></textarea>
-    </div>
 
-    <!-- Section 4: Cost Breakdown -->
-    <div class="ct-breakdown">
-      <h3>Order Summary</h3>
-      <div id="costBreakdown"></div>
-      <div class="ct-total-row">
-        <div class="ct-total-label">Total</div>
-        <div class="ct-total-price" id="totalPrice">₹0</div>
-      </div>
-    </div>
-
+<!-- Bottom Bar -->
+<div class="ct-bottom">
+  <div class="ct-bottom-txt">
+    <strong id="bottomKg">0 KG</strong> &nbsp;•&nbsp; <span id="bottomPrice">₹0</span>
   </div>
+  <button class="ct-place-btn" onclick="placeOrder()">Place Order 🥭</button>
+</div>
 
-  <!-- Bottom Bar -->
-  <div class="ct-bottom">
-    <div class="ct-bottom-txt">
-      <strong id="bottomKg">0 KG</strong> &nbsp;•&nbsp; <span id="bottomPrice">₹0</span>
-    </div>
-    <button class="ct-place-btn" onclick="placeOrder()">Place Order 🥭</button>
-  </div>
+<div class="toast" id="toast"></div>
 
-  <div class="toast" id="toast"></div>
+<script>
+// =============================
+// SUPABASE CONFIG
+// =============================
+const SUPABASE_URL = "https://ejyezioiaslvafodregf.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVqeWV6aW9pYXNsdmFmb2RyZWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxNjYyOTgsImV4cCI6MjA5NDc0MjI5OH0.DlipaTHKQTs8gR9hsHeHzk6Nnj9CmEZon8k4ppotwhc";
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  <script>
-    // =============================
-    // SUPABASE CONFIG
-    // =============================
-    const SUPABASE_URL = "https://ejyezioiaslvafodregf.supabase.co";
-    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVqeWV6aW9pYXNsdmFmb2RyZWdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxNjYyOTgsImV4cCI6MjA5NDc0MjI5OH0.DlipaTHKQTs8gR9hsHeHzk6Nnj9CmEZon8k4ppotwhc";
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const BOT_TOKEN = "8879560908:AAHkFqzkm6nz983haqwJXiobF5Jo22WE7Iw";
+const CHAT_ID = "7131196436";
 
-    const BOT_TOKEN = "8879560908:AAHkFqzkm6nz983haqwJXiobF5Jo22WE7Iw";
-    const CHAT_ID   = "7131196436";
+// =============================
+// STATE
+// =============================
+let cart    = JSON.parse(sessionStorage.getItem('cart')    || '{}');
+let mangoes = JSON.parse(sessionStorage.getItem('mangoes') || '[]');
 
-    // =============================
-    // LOAD STATE FROM SESSION
-    // =============================
-    let cart    = JSON.parse(sessionStorage.getItem('cart')    || '{}');
-    let mangoes = JSON.parse(sessionStorage.getItem('mangoes') || '[]');
-
-    // =============================
-    // RENDER CART ITEMS
-    // =============================
-    function renderCart() {
-      const items    = Object.values(cart);
-      const container = document.getElementById('cartItems');
-      const breakdown = document.getElementById('costBreakdown');
-
-      if (items.length === 0) {
-        container.innerHTML = `
-          <div class="ct-empty">
-            <div style="font-size:48px">🥭</div>
-            <p>Your cart is empty. <a href="index.html" style="color:var(--terra)">Go back</a> and add some mangoes!</p>
-          </div>`;
-        breakdown.innerHTML = '';
-        updateBottomBar();
-        return;
-      }
-
-      // Cart item rows
-      container.innerHTML = items.map(item => {
-        const mango    = mangoes.find(m => m.id === item.id) || item;
-        const subtotal = item.quantity * item.price_per_kg;
-        const maxed    = item.quantity >= mango.stock_kg;
-        return `
-          <div class="ct-item">
-            <div class="ct-item-emoji">${item.emoji}</div>
-            <div class="ct-item-info">
-              <div class="ct-item-name">${item.name}</div>
-              <div class="ct-item-rate">₹${item.price_per_kg}/KG</div>
-              <div class="ct-qty">
-                <button class="ct-qty-btn" onclick="decreaseQty('${item.id}')">−</button>
-                <div class="ct-qty-display">${item.quantity} KG</div>
-                <button class="ct-qty-btn" onclick="increaseQty('${item.id}')"
-                  ${maxed ? 'disabled style="opacity:0.4;cursor:not-allowed;"' : ''}>+</button>
-              </div>
-            </div>
-            <div class="ct-item-subtotal">
-              ₹${subtotal}
-              <span>${item.quantity} KG</span>
-            </div>
-          </div>`;
-      }).join('');
-
-      // Cost breakdown
-      breakdown.innerHTML = items.map(item => {
-        const subtotal = item.quantity * item.price_per_kg;
-        return `
-          <div class="ct-breakdown-row">
-            <div>
-              <div class="item-name">${item.name}</div>
-              <div class="item-detail">${item.quantity} KG × ₹${item.price_per_kg}</div>
-            </div>
-            <div class="item-price">₹${subtotal}</div>
-          </div>`;
-      }).join('');
-
-      updateBottomBar();
-    }
-
-    function updateBottomBar() {
-      const items      = Object.values(cart);
-      const totalKg    = items.reduce((s, i) => s + i.quantity, 0);
-      const totalPrice = items.reduce((s, i) => s + i.quantity * i.price_per_kg, 0);
-      document.getElementById('bottomKg').textContent    = `${totalKg} KG`;
-      document.getElementById('bottomPrice').textContent = `₹${totalPrice}`;
-      document.getElementById('totalPrice').textContent  = `₹${totalPrice}`;
-    }
-
-    // =============================
-    // INCREASE / DECREASE QTY
-    // =============================
-    function increaseQty(id) {
-      const mango = mangoes.find(m => m.id === id);
-      if (!mango) return;
-      if (!cart[id]) return;
-      if (cart[id].quantity + 5 > mango.stock_kg) {
-        showToast(`Only ${mango.stock_kg} KG available`);
-        return;
-      }
-      cart[id].quantity += 5;
-      sessionStorage.setItem('cart', JSON.stringify(cart));
-      renderCart();
-    }
-
-    function decreaseQty(id) {
-      if (!cart[id]) return;
-      cart[id].quantity -= 5;
-      if (cart[id].quantity <= 0) delete cart[id];
-      sessionStorage.setItem('cart', JSON.stringify(cart));
-      renderCart();
-    }
-
-    // =============================
-    // PLACE ORDER
-    // =============================
-    async function placeOrder() {
-      const items = Object.values(cart);
-
-      if (items.length === 0) {
-        showToast("Your cart is empty");
-        return;
-      }
-
-      // Read customer details saved in sessionStorage from index.html
-      const name =
-        document.getElementById('customerName').value.trim(); 
-      const phone =
-        document.getElementById('customerPhone').value.trim();
-      const hno =
-  document.getElementById('addrHno').value.trim();
-
-const apartment =
-  document.getElementById('addrApartment').value.trim();
-
-const locality =
-  document.getElementById('addrLocality').value.trim();
-
-const pincode =
-  document.getElementById('addrPincode').value.trim();
-
-const address =
-  `${hno}, ${apartment}, ${locality}, ${pincode}`;
-      const note    = document.getElementById('deliveryNote').value.trim();
-      if (
-        !name ||
-        !phone ||
-        !/^\d{10}$/.test(phone) ||
-        !hno ||
-!apartment ||
-!locality ||
-!pincode
-      ) {
-        showToast(
-          !phone || !/^\d{10}$/.test(phone)
-            ? "Enter valid 10-digit phone number"
-            : "Fill all details"
-        );
-        return;
-      }
-
-      if (!name || !phone || !address) {
-        showToast("Go back and fill your details");
-        return;
-      }
-const totalKg    = items.reduce((s, i) => s + i.quantity, 0);
-const totalPrice = items.reduce((s, i) => s + i.quantity * i.price_per_kg, 0);
-
-// Place order via RPC (atomic — handles stock check + deduct + insert)
-const orderItems = items.map(i => ({
-  id:           i.id,
-  name:         i.name,
-  emoji:        i.emoji,
-  quantity:     i.quantity,
-  price_per_kg: i.price_per_kg
-}));
-
-const { data: rpcResult, error: rpcError } = await supabaseClient.rpc('place_order', {
-  p_customer_name: name,
-  p_phone:         phone,
-  p_address:       address,
-  p_order_data:    orderItems,
-  p_total_kg:      totalKg,
-  p_total_price:   totalPrice,
-  p_delivery_note: note
-});
-
-if (rpcError || rpcResult?.error) {
-  showToast(rpcResult?.error || "Order failed");
-  return;
+// =============================
+// DISCOUNT HELPER
+// Reads offer_pct and offer_min_kg from the item itself (comes from Supabase via sessionStorage)
+// Returns discount amount in ₹ for this item, or 0 if not eligible
+// =============================
+function calcDiscount(item) {
+  const pct    = item.offer_pct    || 0;
+  const minKg  = item.offer_min_kg || 0;
+  if (pct <= 0 || minKg <= 0) return 0;
+  if (item.quantity < minKg) return 0;
+  const subtotal = item.quantity * item.price_per_kg;
+  return Math.round(subtotal * (pct / 100));
 }
-const referenceId = rpcResult.order_id;
 
-// Telegram
-const itemsText = items.map(i => `• ${i.name} × ${i.quantity} KG — ₹${i.quantity * i.price_per_kg}`).join('\n');
-const msg = `🥭 New Mango Order\n🔖 Ref ID: #${referenceId}\n\n${itemsText}\n\n💰 Total: ₹${totalPrice}\n\n👤 ${name}\n📞 ${phone}\n📍 ${address}${note ? `\n📝 Note: ${note}` : ''}`;
+// =============================
+// RENDER CART
+// =============================
+function renderCart() {
+  const items     = Object.values(cart);
+  const container = document.getElementById('cartItems');
+  const breakdown = document.getElementById('costBreakdown');
+  const banner    = document.getElementById('discountBanner');
+  const bannerTxt = document.getElementById('discountBannerText');
 
-try {
-  await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-    method:  'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body:    JSON.stringify({ chat_id: CHAT_ID, text: msg })
+  if (items.length === 0) {
+    container.innerHTML = `
+      <div class="ct-empty">
+        <div style="font-size:48px">🥭</div>
+        <p>Your cart is empty. <a href="index.html" style="color:var(--terra)">Go back</a> and add some mangoes!</p>
+      </div>`;
+    breakdown.innerHTML = '';
+    banner.style.display = 'none';
+    updateBottomBar();
+    return;
+  }
+
+  // ── Cart item rows ──
+  container.innerHTML = items.map(item => {
+    const mango    = mangoes.find(m => m.id === item.id) || item;
+    const subtotal = item.quantity * item.price_per_kg;
+    const discount = calcDiscount(item);
+    const maxed    = item.quantity >= mango.stock_kg;
+    const pct      = item.offer_pct    || 0;
+    const minKg    = item.offer_min_kg || 0;
+
+    // hint shown when discount exists but qty hasn't reached threshold yet
+    const discountHint = (pct > 0 && item.quantity < minKg)
+      ? `<div style="font-size:11px;color:var(--green);margin-top:3px;">Add ${minKg - item.quantity} more KG for ${pct}% off!</div>`
+      : '';
+
+    return `
+      <div class="ct-item">
+        <div class="ct-item-emoji">${item.emoji}</div>
+        <div class="ct-item-info">
+          <div class="ct-item-name">${item.name}</div>
+          <div class="ct-item-rate">
+            ₹${item.price_per_kg}/KG
+            ${discount > 0 ? `&nbsp;<span style="color:var(--green);font-size:11px;font-weight:700;">${pct}% OFF ✓</span>` : ''}
+          </div>
+          ${discountHint}
+          <div class="ct-qty">
+            <button class="ct-qty-btn" onclick="decreaseQty('${item.id}')">−</button>
+            <div class="ct-qty-display">${item.quantity} KG</div>
+            <button class="ct-qty-btn" onclick="increaseQty('${item.id}')"
+              ${maxed ? 'disabled style="opacity:0.4;cursor:not-allowed;"' : ''}>+</button>
+          </div>
+        </div>
+        <div class="ct-item-subtotal">
+          ₹${subtotal - discount}
+          <span>${item.quantity} KG</span>
+          ${discount > 0 ? `<span style="color:var(--green);font-size:11px;">−₹${discount}</span>` : ''}
+        </div>
+      </div>`;
+  }).join('');
+
+  // ── Order summary breakdown ──
+  let rawTotal      = 0;
+  let totalDiscount = 0;
+
+  const itemRows = items.map(item => {
+    const subtotal = item.quantity * item.price_per_kg;
+    const discount = calcDiscount(item);
+    const pct      = item.offer_pct    || 0;
+    const minKg    = item.offer_min_kg || 0;
+    rawTotal      += subtotal;
+    totalDiscount += discount;
+
+    let html = `
+      <div class="ct-breakdown-row">
+        <div>
+          <div class="item-name">${item.name}</div>
+          <div class="item-detail">${item.quantity} KG × ₹${item.price_per_kg}</div>
+        </div>
+        <div class="item-price">₹${subtotal}</div>
+      </div>`;
+
+    if (discount > 0) {
+      html += `
+        <div class="ct-breakdown-row discount-row">
+          <div>
+            <div class="item-name">🎉 Bulk Discount</div>
+            <div class="item-detail">${pct}% off (min ${minKg} KG)</div>
+          </div>
+          <div class="item-price">−₹${discount}</div>
+        </div>`;
+    }
+
+    return html;
+  }).join('');
+
+  // summary lines only shown when at least one discount is active
+  const summaryLines = totalDiscount > 0 ? `
+    <div class="ct-summary-row">
+      <span class="label">Subtotal</span>
+      <span class="value">₹${rawTotal}</span>
+    </div>
+    <div class="ct-summary-row savings">
+      <span class="label">Total Savings</span>
+      <span class="value">−₹${totalDiscount}</span>
+    </div>` : '';
+
+  breakdown.innerHTML = itemRows + summaryLines;
+
+  // ── Banner ──
+  const discountedItems = items.filter(i => calcDiscount(i) > 0);
+  if (discountedItems.length > 0) {
+    banner.style.display = 'flex';
+    bannerTxt.textContent = `Discount applied on ${discountedItems.map(i => i.name).join(' & ')}!`;
+  } else {
+    banner.style.display = 'none';
+  }
+
+  updateBottomBar();
+}
+
+function updateBottomBar() {
+  const items         = Object.values(cart);
+  const totalKg       = items.reduce((s, i) => s + i.quantity, 0);
+  const rawTotal      = items.reduce((s, i) => s + i.quantity * i.price_per_kg, 0);
+  const totalDiscount = items.reduce((s, i) => s + calcDiscount(i), 0);
+  const finalTotal    = rawTotal - totalDiscount;
+
+  document.getElementById('bottomKg').textContent    = `${totalKg} KG`;
+  document.getElementById('bottomPrice').textContent = `₹${finalTotal}`;
+  document.getElementById('totalPrice').textContent  = `₹${finalTotal}`;
+}
+
+// =============================
+// QTY CONTROLS
+// =============================
+function increaseQty(id) {
+  const mango = mangoes.find(m => m.id === id);
+  if (!mango || !cart[id]) return;
+  if (cart[id].quantity + 5 > mango.stock_kg) {
+    showToast(`Only ${mango.stock_kg} KG available`);
+    return;
+  }
+  cart[id].quantity += 5;
+  sessionStorage.setItem('cart', JSON.stringify(cart));
+  renderCart();
+}
+
+function decreaseQty(id) {
+  if (!cart[id]) return;
+  cart[id].quantity -= 5;
+  if (cart[id].quantity <= 0) delete cart[id];
+  sessionStorage.setItem('cart', JSON.stringify(cart));
+  renderCart();
+}
+
+// =============================
+// PLACE ORDER
+// =============================
+async function placeOrder() {
+  const items = Object.values(cart);
+  if (items.length === 0) { showToast("Your cart is empty"); return; }
+
+  const name      = document.getElementById('customerName').value.trim();
+  const phone     = document.getElementById('customerPhone').value.trim();
+  const hno       = document.getElementById('addrHno').value.trim();
+  const apartment = document.getElementById('addrApartment').value.trim();
+  const locality  = document.getElementById('addrLocality').value.trim();
+  const pincode   = document.getElementById('addrPincode').value.trim();
+  const address   = `${hno}, ${apartment}, ${locality}, ${pincode}`;
+  const note      = document.getElementById('deliveryNote').value.trim();
+
+  if (!name || !phone || !/^\d{10}$/.test(phone) || !hno || !apartment || !locality || !pincode) {
+    showToast(!phone || !/^\d{10}$/.test(phone) ? "Enter valid 10-digit phone number" : "Fill all details");
+    return;
+  }
+
+  const totalKg       = items.reduce((s, i) => s + i.quantity, 0);
+  const rawTotal      = items.reduce((s, i) => s + i.quantity * i.price_per_kg, 0);
+  const totalDiscount = items.reduce((s, i) => s + calcDiscount(i), 0);
+  const finalTotal    = rawTotal - totalDiscount;
+
+  const orderItems = items.map(i => ({
+    id: i.id, name: i.name, emoji: i.emoji,
+    quantity: i.quantity, price_per_kg: i.price_per_kg,
+    discount: calcDiscount(i)
+  }));
+
+  const { data: rpcResult, error: rpcError } = await supabaseClient.rpc('place_order', {
+    p_customer_name: name,
+    p_phone:         phone,
+    p_address:       address,
+    p_order_data:    orderItems,
+    p_total_kg:      totalKg,
+    p_total_price:   finalTotal,
+    p_delivery_note: note
   });
-} catch(e) { console.error(e); }
 
-showToast(`Order placed! 🥭 Your Ref ID: #${referenceId}`, 15000);
+  if (rpcError || rpcResult?.error) {
+    showToast(rpcResult?.error || "Order failed");
+    return;
+  }
 
-sessionStorage.removeItem('cart');
-sessionStorage.removeItem('mangoes');
+  const referenceId = rpcResult.order_id;
 
-document.body.innerHTML = `
-  <div style="
-    min-height: 100vh;
-    background: var(--cream);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 40px 24px;
-    font-family: 'DM Sans', sans-serif;
-    text-align: center;
-  ">
-    <div style="font-size: 64px; margin-bottom: 20px;">🥭</div>
+  // Telegram
+  const itemsText   = items.map(i => {
+    const disc = calcDiscount(i);
+    const net  = i.quantity * i.price_per_kg - disc;
+    return `• ${i.name} × ${i.quantity} KG — ₹${net}${disc > 0 ? ` (${i.offer_pct}% disc −₹${disc})` : ''}`;
+  }).join('\n');
+  const discLine = totalDiscount > 0 ? `\n💸 Total Savings: −₹${totalDiscount}` : '';
+  const msg = `🥭 New Mango Order\n🔖 Ref ID: #${referenceId}\n\n${itemsText}\n${discLine}\n💰 Total: ₹${finalTotal}\n\n👤 ${name}\n📞 ${phone}\n📍 ${address}${note ? `\n📝 Note: ${note}` : ''}`;
 
-    <div style="
-      font-family: 'Playfair Display', serif;
-      font-size: 26px;
-      font-weight: 800;
-      color: var(--maroon);
-      margin-bottom: 8px;
-    ">Order Placed!</div>
+  try {
+    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: CHAT_ID, text: msg })
+    });
+  } catch(e) { console.error(e); }
 
-    <div style="
-      font-size: 14px;
-      color: var(--maroon-60);
-      margin-bottom: 32px;
-    ">Thank you, ${name}. We'll deliver your mangoes fresh!</div>
+  showToast(`Order placed! 🥭 Your Ref ID: #${referenceId}`, 15000);
+  sessionStorage.removeItem('cart');
+  sessionStorage.removeItem('mangoes');
 
-    <div style="
-      background: #fff;
-      border: 0.5px solid var(--terra-50);
-      border-radius: 16px;
-      padding: 24px 32px;
-      margin-bottom: 32px;
-    ">
-      <div style="font-size: 12px; color: var(--maroon-60); margin-bottom: 6px; letter-spacing: 1px; text-transform: uppercase;">Your Reference ID</div>
-      <div style="
-        font-family: 'Playfair Display', serif;
-        font-size: 36px;
-        font-weight: 800;
-        color: var(--maroon);
-      ">#${referenceId}</div>
-      <div style="font-size: 12px; color: var(--maroon-60); margin-top: 6px;">Please save this for tracking your order</div>
-    </div>
-
-    <button onclick="window.location.href='index.html'" style="
-      background: var(--maroon);
-      color: var(--cream);
-      border: none;
-      padding: 14px 32px;
-      border-radius: 12px;
-      font-family: 'DM Sans', sans-serif;
-      font-weight: 700;
-      font-size: 15px;
-      cursor: pointer;
-    ">← Back to Home</button>
-  </div>
-`;
+  document.body.innerHTML = `
+    <div style="min-height:100vh;background:var(--cream);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;font-family:'DM Sans',sans-serif;text-align:center;">
+      <div style="font-size:64px;margin-bottom:20px;">🥭</div>
+      <div style="font-family:'Playfair Display',serif;font-size:26px;font-weight:800;color:var(--maroon);margin-bottom:8px;">Order Placed!</div>
+      <div style="font-size:14px;color:var(--maroon-60);margin-bottom:32px;">Thank you, ${name}. We'll deliver your mangoes fresh!</div>
+      <div style="background:#fff;border:0.5px solid var(--terra-50);border-radius:16px;padding:24px 32px;margin-bottom:${totalDiscount > 0 ? '16px' : '32px'};">
+        <div style="font-size:12px;color:var(--maroon-60);margin-bottom:6px;letter-spacing:1px;text-transform:uppercase;">Your Reference ID</div>
+        <div style="font-family:'Playfair Display',serif;font-size:36px;font-weight:800;color:var(--maroon);">#${referenceId}</div>
+        <div style="font-size:12px;color:var(--maroon-60);margin-top:6px;">Please save this for tracking your order</div>
+      </div>
+      ${totalDiscount > 0 ? `
+      <div style="background:#E8F5E9;border:1px solid #A5D6A7;border-radius:12px;padding:12px 24px;margin-bottom:32px;color:#2E7D32;font-weight:600;font-size:14px;">
+        🎉 You saved ₹${totalDiscount} with bulk discount!
+      </div>` : ''}
+      <button onclick="window.location.href='index.html'" style="background:var(--maroon);color:var(--cream);border:none;padding:14px 32px;border-radius:12px;font-family:'DM Sans',sans-serif;font-weight:700;font-size:15px;cursor:pointer;">← Back to Home</button>
+    </div>`;
 }
-      
-    // =============================
-    // TOAST
-    // =============================
+
+// =============================
+// TOAST
+// =============================
 function showToast(msg, duration = 3000) {
   const t = document.getElementById('toast');
   t.innerText = msg;
   t.style.display = 'block';
   setTimeout(() => t.style.display = 'none', duration);
 }
-    // Init
-    renderCart();
-  </script>
+
+// Init
+renderCart();
+</script>
 </body>
 </html>
